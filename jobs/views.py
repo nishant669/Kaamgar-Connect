@@ -7,47 +7,130 @@ from django.db.models import Q
 from .models import Job, SavedJob, JOB_CATEGORY_CHOICES, JOB_TYPE_CHOICES, EXPERIENCE_CHOICES
 from applications.models import Application
 import datetime
+from workers.models import WorkerProfile
+from .models import Job
 
 def job_list(request):
-    jobs = Job.objects.filter(is_active=True).select_related('employer')
+
+    jobs = Job.objects.filter(
+        is_active=True
+    ).select_related('employer')
+
     category   = request.GET.get('category','')
     location   = request.GET.get('location','')
     job_type   = request.GET.get('job_type','')
     experience = request.GET.get('experience','')
     salary_min = request.GET.get('salary_min','')
     search     = request.GET.get('search','')
+    distance   = request.GET.get('distance','')
 
-    if category:   jobs = jobs.filter(category=category)
-    if location:   jobs = jobs.filter(location__icontains=location)
-    if job_type:   jobs = jobs.filter(job_type=job_type)
-    if experience: jobs = jobs.filter(experience_req=experience)
+
+    # Filters
+    if category:
+        jobs = jobs.filter(category=category)
+
+    if location:
+        jobs = jobs.filter(location__icontains=location)
+
+    if job_type:
+        jobs = jobs.filter(job_type=job_type)
+
+    if experience:
+        jobs = jobs.filter(experience_req=experience)
+
     if salary_min:
-        try: jobs = jobs.filter(salary_min__gte=float(salary_min))
-        except: pass
+        try:
+            jobs = jobs.filter(salary_min__gte=float(salary_min))
+        except:
+            pass
+
     if search:
         jobs = jobs.filter(
-            Q(title__icontains=search)|Q(description__icontains=search)|
-            Q(skills_required__icontains=search)|Q(location__icontains=search)
+            Q(title__icontains=search) |
+            Q(description__icontains=search) |
+            Q(skills_required__icontains=search) |
+            Q(location__icontains=search)
         )
 
-    saved_ids = set()
+
+    # Distance Filter
     if request.user.is_authenticated:
-        saved_ids = set(SavedJob.objects.filter(user=request.user).values_list('job_id', flat=True))
 
-    jobs = jobs.distinct().order_by('-is_featured','-created_at')
+        try:
+            worker = WorkerProfile.objects.get(user=request.user)
+
+            filtered_jobs = []
+
+            for job in jobs:
+
+                if job.latitude and job.longitude and worker.latitude:
+
+                    dist = worker.distance_to(
+                        job.latitude,
+                        job.longitude
+                    )
+
+                    job.distance = round(dist, 2)
+
+                    # Apply distance filter if selected
+                    if distance:
+                        if dist <= int(distance):
+                            filtered_jobs.append(job)
+                    else:
+                        # Worker default radius
+                        if dist <= worker.working_radius_km:
+                            filtered_jobs.append(job)
+
+            jobs = filtered_jobs
+
+        except:
+            pass
+
+
+    # Saved Jobs
+    saved_ids = set()
+
+    if request.user.is_authenticated:
+        saved_ids = set(
+            SavedJob.objects.filter(
+                user=request.user
+            ).values_list('job_id', flat=True)
+        )
+
+
+    # Pagination
+    jobs = sorted(
+        jobs,
+        key=lambda x: (x.is_featured, x.created_at),
+        reverse=True
+    )
+
     paginator = Paginator(jobs, 12)
-    page_obj  = paginator.get_page(request.GET.get('page',1))
 
-    return render(request,'jobs/job_list.html',{
-        'jobs': page_obj, 'page_obj': page_obj,
-        'category': category, 'location': location, 'job_type': job_type,
-        'experience': experience, 'salary_min': salary_min, 'search': search,
-        'saved_ids': saved_ids,
-        'categories':   JOB_CATEGORY_CHOICES,
-        'job_types':    JOB_TYPE_CHOICES,
-        'exp_choices':  EXPERIENCE_CHOICES,
-    })
+    page_obj = paginator.get_page(
+        request.GET.get('page',1)
+    )
 
+
+    return render(
+        request,
+        'jobs/job_list.html',
+        {
+            'jobs': page_obj,
+            'page_obj': page_obj,
+            'category': category,
+            'location': location,
+            'job_type': job_type,
+            'experience': experience,
+            'salary_min': salary_min,
+            'search': search,
+            'distance': distance,
+            'saved_ids': saved_ids,
+            'categories': JOB_CATEGORY_CHOICES,
+            'job_types': JOB_TYPE_CHOICES,
+            'exp_choices': EXPERIENCE_CHOICES,
+        }
+    )
 def job_detail(request, pk):
     job = get_object_or_404(Job, pk=pk, is_active=True)
     # Track view
@@ -225,3 +308,40 @@ def delete_job(request, pk):
         title = job.title; job.delete()
         messages.success(request, f'Job "{title}" deleted.')
     return redirect('jobs:my_jobs')
+
+@login_required
+def find_jobs(request):
+
+    try:
+        worker = WorkerProfile.objects.get(user=request.user)
+    except WorkerProfile.DoesNotExist:
+        return render(request, "jobs/find_jobs.html", {
+            "jobs": []
+        })
+
+    jobs = Job.objects.filter(is_active=True)
+
+    filtered_jobs = []
+
+    for job in jobs:
+
+        if job.latitude and job.longitude:
+
+            distance = worker.distance_to(
+                job.latitude,
+                job.longitude
+            )
+
+            if distance and distance <= worker.working_radius_km:
+                job.distance = round(distance, 2)
+                filtered_jobs.append(job)
+
+    context = {
+        "jobs": filtered_jobs
+    }
+
+    return render(
+        request,
+        "jobs/find_jobs.html",
+        context
+    )

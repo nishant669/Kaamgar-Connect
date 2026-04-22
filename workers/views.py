@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from accounts.models import CustomUser
 from workers.models import WorkerProfile, SKILL_CHOICES
+from applications.models import WorkerReview 
 
 def worker_list(request):
     workers = CustomUser.objects.filter(role='worker').select_related('worker_profile')
@@ -40,29 +41,46 @@ def worker_list(request):
                     'min_rate':min_rate,'max_rate':max_rate,'min_exp':min_exp},
     })
 
+
 def worker_detail(request, pk):
-    profile_user = get_object_or_404(CustomUser, pk=pk, role='worker')
-    wp, _ = WorkerProfile.objects.get_or_create(user=profile_user)
-    reviews = []
-    try:
-        from reviews.models import Review
-        reviews = Review.objects.filter(reviewee=profile_user).select_related('reviewer').order_by('-created_at')
-    except: pass
+
+    profile_user = get_object_or_404(
+        CustomUser,
+        pk=pk,
+        role='worker'
+    )
+
+    wp, _ = WorkerProfile.objects.get_or_create(
+        user=profile_user
+    )
+
+    # Get Reviews
+    reviews = WorkerReview.objects.filter(
+        worker=profile_user
+    ).select_related(
+        "employer"
+    ).order_by(
+        "-created_at"
+    )
 
     worker_details = [
-        ('Primary Skill',  wp.get_skills_display,                   'person-fill-gear'),
-        ('Experience',     f'{wp.experience_years} year{"s" if wp.experience_years != 1 else ""}', 'calendar3'),
-        ('Daily Rate',     f'₹{wp.daily_rate}/day',                 'currency-rupee'),
-        ('Jobs Done',      str(wp.total_jobs),                       'check2-circle'),
-        ('Rating',         f'{wp.rating}/5.0',                       'star-fill'),
-        ('Languages',      wp.languages or 'Hindi, English',         'translate'),
-        ('ID Verified',    '✓ Verified' if wp.aadhar_verified else 'Pending', 'patch-check'),
-        ('Availability',   'Available' if wp.availability else 'Unavailable','circle'),
+        ('Primary Skill', wp.get_skills_display(), 'person-fill-gear'),
+        ('Experience', f'{wp.experience_years} years', 'calendar3'),
+        ('Daily Rate', f'₹{wp.daily_rate}/day', 'currency-rupee'),
+        ('Jobs Done', str(wp.total_jobs), 'check2-circle'),
+        ('Rating', f'{wp.rating}/5.0', 'star-fill'),
+        ('Languages', wp.languages or 'Hindi, English', 'translate'),
+        ('ID Verified', '✓ Verified' if wp.aadhar_verified else 'Pending', 'patch-check'),
+        ('Availability', 'Available' if wp.availability else 'Unavailable','circle'),
     ]
 
-    return render(request,'workers/worker_detail.html',{
-        'profile_user': profile_user,
-        'wp': wp,
-        'reviews': reviews,
-        'worker_details': worker_details,
-    })
+    return render(
+        request,
+        'workers/worker_detail.html',
+        {
+            'profile_user': profile_user,
+            'wp': wp,
+            'reviews': reviews,
+            'worker_details': worker_details,
+        }
+    )

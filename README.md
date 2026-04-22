@@ -1,104 +1,68 @@
-<div align="center">
-
 # 🛠️ Kaamgar Connect (कामगार कनेक्ट)
 
-### 🚀 Empowering Blue-Collar Workforce Through Technology
+### 🚀 Proximity-Based Marketplace for the Blue-Collar Workforce
 
-<p>
-  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Django-4.2-092E20?style=flat&logo=django"/>
-  <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat&logo=mysql"/>
-  <img src="https://img.shields.io/badge/Frontend-HTML%2FCSS%2FJS-F7DF1E?style=flat&logo=javascript&logoColor=black"/>
-</p>
+[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/Django-6.0-092E20?style=flat&logo=django)](https://www.djangoproject.com/)
+[![Database](https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat&logo=mysql)](https://www.mysql.com/)
+[![Frontend](https://img.shields.io/badge/UI-Strict_Dark_Theme-1E293B?style=flat)](https://tailwindcss.com/)
+[![HTMX](https://img.shields.io/badge/Real--time-HTMX-3D72D7?style=flat)](https://htmx.org/)
 
-💡 *A real-time, bilingual job platform connecting local workers with employers.*
-
-</div>
+**Kaamgar Connect** is a modern, bilingual job marketplace designed to bridge the gap between local skilled workers (Kaamgars) and employers (Maliks). Built with a focus on ease of use, it features high-performance proximity matching and a real-time feedback ecosystem.
 
 ---
 
-## 🌍 Problem
+## 🌟 Key Innovations
 
-Millions of skilled workers:
-- ❌ Don’t have resumes  
-- ❌ Don’t use English platforms  
-- ❌ Struggle to find daily work  
+### 📍 Smart Proximity Matching (3km Radius)
+Unlike traditional job boards, Kaamgar Connect uses the **Haversine Formula** to calculate real-time geographic distances. 
+- Users can filter jobs or workers within a **3km radius** or custom distances.
+- Optimized backend queries ensure fast results without heavy GIS dependencies.
 
----
+### ⚡ Real-Time Review System (HTMX)
+A seamless, no-reload feedback system.
+- Employers can rate and review workers instantly after job completion.
+- Reviews are injected into the DOM via **HTMX**, providing a "Single Page Application" feel.
 
-## ✅ Solution
-
-**Kaamgar Connect** provides:
-- 📱 Simple mobile-first UI  
-- 🌐 Hindi + English support  
-- 🔐 OTP-based login (no passwords)  
-- ⚡ Instant job matching  
+### 🌑 "Eye-Comfort" Dark Interface
+A strictly dark-themed, professional UI/UX.
+- Developed with **Tailwind CSS/Bootstrap 5** using a Deep Slate palette (`#0F172A`).
+- Focuses on accessibility, high contrast for outdoor visibility, and smooth micro-animations.
 
 ---
 
 ## 🎯 Core Features
 
-### 👷 Workers (Kaamgar)
-- 🌐 Language toggle (Hindi/English)
-- 📲 OTP login (no password)
-- 🔍 Browse jobs by category & pay
-- ⚡ One-click apply
-- 📊 Track application status
-- 💬 Chat with employers
+### 👷 For Workers (Kaamgars)
+- **Bilingual Support:** Toggle between Hindi and English seamlessly.
+- **OTP-Based Access:** Simplified login via mobile/OTP for accessibility.
+- **Location-Aware Feed:** Discover daily-wage work available within walking distance.
+- **Status Tracking:** Real-time updates on application acceptance/rejection.
 
----
-
-### 🏢 Employers (Malik)
-- 📝 Post jobs easily
-- 🎯 Filter workers by skills
-- 📋 Manage applications
-- ✅ Accept / Reject instantly
-- 💬 Real-time chat system
-
----
-
-## 🎨 UI / UX Highlights
-
-- 🌓 Dark / Light mode
-- 📱 Fully responsive (mobile-first)
-- ⚡ Fast loading (no heavy frameworks)
-- 💬 AJAX chat (no reload)
+### 🏢 For Employers (Maliks)
+- **Instant Job Posting:** Mobile-optimized forms for quick posting.
+- **Candidate Analytics:** View worker ratings and previous feedback before hiring.
+- **Direct Communication:** Integrated real-time chat UI for coordination.
+- **Verification System:** Mark workers as "Trusted" based on completed tasks.
 
 ---
 
 ## 🧠 Tech Stack
 
-| Layer       | Technology        |
-|------------|-----------------|
-| Backend     | Django 4.2      |
-| Database    | MySQL 8         |
-| Frontend    | HTML, CSS, JS   |
-| Media       | Pillow          |
+| Layer | Technology |
+| :--- | :--- |
+| **Backend** | Django 6.0 (Python) |
+| **Database** | MySQL / SQLite (Development) |
+| **Real-time Engine** | HTMX & AJAX |
+| **Frontend** | Tailwind CSS / Bootstrap 5, Javascript |
+| **Geolocation** | Geopy / Haversine Formula |
+| **Media Handling** | Pillow (Profile & Logo management) |
 
 ---
 
-## 🔄 Workflow Example
+## ⚙️ Installation & Setup
 
-### Hiring Flow
-
-1. Employer posts job  
-2. Worker applies  
-3. Employer reviews  
-4. Accepts worker  
-5. Chat starts automatically 🤝  
-
----
-
-## ⚙️ Installation
-
-```bash
-# Clone project
-git clone https://github.com/YOUR_USERNAME/kaamgar_connect.git
-cd kaamgar_connect
-
-# Create virtual environment
-python -m venv venv
-venv\Scripts\activate   # Windows
-
-# Install dependencies
-pip install -r requirements.txt
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/nishant669/Kaamgar-Connect.git](https://github.com/nishant669/Kaamgar-Connect.git)
+   cd Kaamgar-Connect

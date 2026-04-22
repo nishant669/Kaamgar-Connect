@@ -1,0 +1,83 @@
+{% load static %}
+<aside class="kc-sidebar" id="sidebar">
+  <!-- Sidebar toggle button -->
+  <button class="sidebar-toggle-btn" id="sidebarToggle" title="Collapse sidebar">
+    <i class="bi bi-layout-sidebar-reverse"></i>
+  </button>
+
+  {% if user.is_authenticated %}
+  <!-- User mini-card -->
+  <div class="sidebar-user">
+    <div class="kc-avatar kc-avatar-md">
+      {% if user.profile_photo %}<img src="{{ user.profile_photo.url }}" alt="avatar">{% else %}{{ user.first_name|first|upper|default:user.username|first|upper }}{% endif %}
+    </div>
+    <div class="sidebar-user-info">
+      <div class="sidebar-user-name">{{ user.get_full_name|default:user.username|truncatechars:18 }}</div>
+      <div class="sidebar-user-role">{{ user.role|capfirst }} · {{ user.city|default:"No city" }}</div>
+    </div>
+  </div>
+  {% endif %}
+
+  <nav class="sidebar-nav">
+    <div class="sidebar-section-label">Main</div>
+    <a href="{% url 'dashboard:home' %}" class="sidebar-link {% if request.resolver_match.namespace == 'dashboard' and request.resolver_match.url_name == 'home' %}active{% endif %}">
+      <i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span>
+    </a>
+    <a href="{% url 'jobs:list' %}" class="sidebar-link {% if request.resolver_match.view_name == 'jobs:list' %}active{% endif %}">
+      <i class="bi bi-briefcase-fill"></i><span>Browse Jobs</span>
+    </a>
+
+    {% if user.role == 'worker' %}
+    <a href="{% url 'applications:list' %}" class="sidebar-link {% if request.resolver_match.namespace == 'applications' %}active{% endif %}">
+      <i class="bi bi-file-earmark-text-fill"></i><span>My Applications</span>
+      {% if stats.pending %}<span class="sidebar-count">{{ stats.pending }}</span>{% endif %}
+    </a>
+    <a href="{% url 'jobs:saved' %}" class="sidebar-link {% if request.resolver_match.url_name == 'saved' %}active{% endif %}">
+      <i class="bi bi-bookmark-heart-fill"></i><span>Saved Jobs</span>
+    </a>
+    {% elif user.role == 'employer' %}
+    <a href="{% url 'jobs:my_jobs' %}" class="sidebar-link {% if request.resolver_match.url_name == 'my_jobs' %}active{% endif %}">
+      <i class="bi bi-collection-fill"></i><span>My Jobs</span>
+    </a>
+    <a href="{% url 'jobs:post' %}" class="sidebar-link {% if request.resolver_match.url_name == 'post' %}active{% endif %}">
+      <i class="bi bi-plus-circle-fill"></i><span>Post a Job</span>
+    </a>
+    <a href="{% url 'workers:list' %}" class="sidebar-link {% if request.resolver_match.namespace == 'workers' %}active{% endif %}">
+      <i class="bi bi-people-fill"></i><span>Find Workers</span>
+    </a>
+    <a href="{% url 'dashboard:analytics' %}" class="sidebar-link {% if request.resolver_match.url_name == 'analytics' %}active{% endif %}">
+      <i class="bi bi-bar-chart-fill"></i><span>Analytics</span>
+    </a>
+    {% endif %}
+
+    <div class="sidebar-section-label">Communication</div>
+    <a href="{% url 'chat:inbox' %}" class="sidebar-link {% if request.resolver_match.namespace == 'chat' %}active{% endif %}">
+      <i class="bi bi-chat-dots-fill"></i><span>Messages</span>
+      {% if unread_notifications %}<span class="sidebar-count">{{ unread_notifications }}</span>{% endif %}
+    </a>
+    <a href="{% url 'notifications:list' %}" class="sidebar-link {% if request.resolver_match.namespace == 'notifications' %}active{% endif %}">
+      <i class="bi bi-bell-fill"></i><span>Notifications</span>
+    </a>
+
+    <div class="sidebar-section-label">Account</div>
+    <a href="{% url 'accounts:profile' %}" class="sidebar-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+      <i class="bi bi-person-circle"></i><span>Profile</span>
+    </a>
+    <a href="{% url 'accounts:change_password' %}" class="sidebar-link {% if request.resolver_match.url_name == 'change_password' %}active{% endif %}">
+      <i class="bi bi-shield-lock-fill"></i><span>Security</span>
+    </a>
+
+    {% if user.is_staff %}
+    <div class="sidebar-section-label">Admin</div>
+    <a href="{% url 'admin_panel:dashboard' %}" class="sidebar-link">
+      <i class="bi bi-speedometer2"></i><span>Admin Panel</span>
+    </a>
+    {% endif %}
+
+    <div style="margin-top:auto;padding-top:1rem;">
+      <a href="{% url 'accounts:logout' %}" class="sidebar-link" style="color:var(--danger);" data-confirm="Log out?">
+        <i class="bi bi-box-arrow-right"></i><span>Logout</span>
+      </a>
+    </div>
+  </nav>
+</aside>

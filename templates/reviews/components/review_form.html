@@ -1,0 +1,275 @@
+<!-- Review Submission Form Component -->
+{% load static %}
+
+<div class="review-form-container card">
+  <div class="card-header">
+    <h5 class="mb-0">
+      <i class="bi bi-star"></i> Share Your Experience
+    </h5>
+  </div>
+
+  <form method="post" action="{% url 'reviews:submit' application.id %}" class="review-form">
+    {% csrf_token %}
+
+    <!-- Overall Rating Section -->
+    <div class="form-section">
+      <label class="form-label">Overall Rating *</label>
+      <div class="star-input mb-3" id="overallRating">
+        <span class="star">★</span>
+        <span class="star">★</span>
+        <span class="star">★</span>
+        <span class="star">★</span>
+        <span class="star">★</span>
+      </div>
+      <input type="hidden" name="rating" value="0">
+      <small class="form-text">Click to rate your experience</small>
+    </div>
+
+    <!-- Review Title -->
+    <div class="form-group">
+      <label class="form-label" for="reviewTitle">Review Title *</label>
+      <input type="text" class="form-control" id="reviewTitle" name="title" 
+             placeholder="Summarize your experience..." maxlength="200" required>
+      <small class="form-text">(e.g., "Great work, very professional")</small>
+    </div>
+
+    <!-- Review Comment -->
+    <div class="form-group">
+      <label class="form-label" for="reviewComment">Your Feedback *</label>
+      <textarea class="form-control" id="reviewComment" name="comment" rows="5"
+                placeholder="Share details about the work quality, professionalism, and overall experience..."
+                maxlength="1000" required data-maxchars="1000"></textarea>
+      <div class="d-flex justify-content-between align-items-center mt-2">
+        <small class="form-text">Detailed reviews help others make better decisions</small>
+        <small class="form-text"><span class="char-count">0</span>/1000</small>
+      </div>
+    </div>
+
+    <!-- Dimension Ratings -->
+    <div class="dimension-ratings mt-4">
+      <h6 class="mb-3">Rate specific aspects:</h6>
+
+      <!-- Quality Rating -->
+      <div class="rating-dimension mb-4">
+        <label class="form-label d-flex justify-content-between">
+          <span>
+            <i class="bi bi-check-circle"></i> Quality of Work
+          </span>
+          <span class="quality-value" style="color: var(--primary);">★★★★★</span>
+        </label>
+        <div class="star-input quality-stars">
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+        </div>
+        <input type="hidden" name="quality_rating" value="5">
+        <small class="form-text">How good was the quality of work?</small>
+      </div>
+
+      <!-- Punctuality Rating -->
+      <div class="rating-dimension mb-4">
+        <label class="form-label d-flex justify-content-between">
+          <span>
+            <i class="bi bi-clock"></i> Punctuality & Timeliness
+          </span>
+          <span class="punctuality-value" style="color: var(--primary);">★★★★★</span>
+        </label>
+        <div class="star-input punctuality-stars">
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+        </div>
+        <input type="hidden" name="punctuality" value="5">
+        <small class="form-text">Did they complete work on time?</small>
+      </div>
+
+      <!-- Communication Rating -->
+      <div class="rating-dimension mb-4">
+        <label class="form-label d-flex justify-content-between">
+          <span>
+            <i class="bi bi-chat-dots"></i> Communication
+          </span>
+          <span class="communication-value" style="color: var(--primary);">★★★★★</span>
+        </label>
+        <div class="star-input communication-stars">
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+        </div>
+        <input type="hidden" name="communication" value="5">
+        <small class="form-text">How well did they communicate?</small>
+      </div>
+
+      <!-- Professionalism Rating -->
+      <div class="rating-dimension mb-4">
+        <label class="form-label d-flex justify-content-between">
+          <span>
+            <i class="bi bi-briefcase"></i> Professionalism
+          </span>
+          <span class="professionalism-value" style="color: var(--primary);">★★★★★</span>
+        </label>
+        <div class="star-input professionalism-stars">
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+          <span class="star">★</span>
+        </div>
+        <input type="hidden" name="professionalism" value="5">
+        <small class="form-text">How professional was their work?</small>
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="d-grid gap-2 mt-4">
+      <button type="submit" class="btn btn-primary btn-lg">
+        <i class="bi bi-check-circle"></i> Submit Review
+      </button>
+      <a href="javascript:history.back()" class="btn btn-secondary">Skip for now</a>
+    </div>
+
+    <p class="text-muted small mt-3 text-center">
+      <i class="bi bi-shield-check"></i> Your feedback helps maintain quality standards in our community
+    </p>
+  </form>
+</div>
+
+<style>
+  .review-form-container {
+    max-width: 600px;
+    margin: auto;
+  }
+
+  .rating-dimension {
+    padding: 1rem;
+    background: var(--bg-tertiary, #f9f9f9);
+    border-radius: var(--radius-lg);
+    border-left: 4px solid var(--primary);
+  }
+
+  .form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-primary, #e5e7eb);
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Handle overall rating
+    setupStarRating('#overallRating', 'input[name="rating"]', 
+      (rating) => {
+        // Update dimension ratings to match overall
+        document.querySelectorAll('.star-input').forEach(group => {
+          const input = group.nextElementSibling;
+          if (input && input.tagName === 'INPUT') {
+            input.value = rating;
+            updateDimensionDisplay(group, rating);
+          }
+        });
+      }
+    );
+
+    // Quality, Punctuality, Communication, Professionalism ratings
+    setupStarRating('.quality-stars', 'input[name="quality_rating"]', 
+      (rating) => updateDimensionDisplay('.quality-stars', rating, '.quality-value')
+    );
+
+    setupStarRating('.punctuality-stars', 'input[name="punctuality"]',
+      (rating) => updateDimensionDisplay('.punctuality-stars', rating, '.punctuality-value')
+    );
+
+    setupStarRating('.communication-stars', 'input[name="communication"]',
+      (rating) => updateDimensionDisplay('.communication-stars', rating, '.communication-value')
+    );
+
+    setupStarRating('.professionalism-stars', 'input[name="professionalism"]',
+      (rating) => updateDimensionDisplay('.professionalism-stars', rating, '.professionalism-value')
+    );
+
+    // Character counter
+    const textarea = document.getElementById('reviewComment');
+    if (textarea) {
+      textarea.addEventListener('input', updateCharCounter);
+      updateCharCounter();
+    }
+  });
+
+  function setupStarRating(starSelector, inputSelector, callback) {
+    const container = document.querySelector(starSelector);
+    if (!container) return;
+
+    const stars = container.querySelectorAll('.star');
+    const input = document.querySelector(inputSelector);
+
+    stars.forEach((star, index) => {
+      star.addEventListener('click', () => {
+        const rating = index + 1;
+        if (input) input.value = rating;
+        if (callback) callback(rating);
+        updateStarDisplay(stars, rating);
+      });
+
+      star.addEventListener('mouseenter', () => {
+        updateStarDisplay(stars, index + 1, true);
+      });
+    });
+
+    container.addEventListener('mouseleave', () => {
+      const currentRating = input ? parseInt(input.value) : 0;
+      updateStarDisplay(stars, currentRating);
+    });
+  }
+
+  function updateStarDisplay(stars, rating, hover = false) {
+    stars.forEach((star, index) => {
+      if (index < rating) {
+        star.classList.add('active');
+        star.classList.remove('empty');
+        star.style.color = '#F59E0B';
+        if (hover) star.style.transform = 'scale(1.2)';
+      } else {
+        star.classList.remove('active');
+        star.classList.add('empty');
+        star.style.color = 'var(--text-muted)';
+        star.style.transform = 'scale(1)';
+      }
+    });
+  }
+
+  function updateDimensionDisplay(selector, rating, valueSelector = null) {
+    const container = typeof selector === 'string' ? document.querySelector(selector) : selector;
+    if (!container) return;
+
+    const stars = container.querySelectorAll('.star');
+    updateStarDisplay(stars, rating);
+
+    if (valueSelector) {
+      const valueEl = document.querySelector(valueSelector);
+      if (valueEl) {
+        valueEl.textContent = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+      }
+    }
+  }
+
+  function updateCharCounter() {
+    const textarea = document.getElementById('reviewComment');
+    const count = textarea.value.length;
+    const counter = document.querySelector('.char-count');
+    if (counter) counter.textContent = count;
+
+    if (count > 900) {
+      counter.style.color = 'var(--danger)';
+    } else if (count > 700) {
+      counter.style.color = 'var(--warning)';
+    } else {
+      counter.style.color = 'var(--text-muted)';
+    }
+  }
+</script>

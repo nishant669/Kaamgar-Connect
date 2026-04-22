@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+{% block full_content %}
+<div class="kc-auth-bg">
+  <div class="kc-auth-card kc-fade-in">
+    <div class="kc-auth-icon">🔑</div>
+    <h1 class="kc-auth-title">Welcome back</h1>
+    <p class="kc-auth-subtitle">Sign in to your Kaamgar Connect account</p>
+
+    <form method="post" id="loginForm">
+      {% csrf_token %}
+      <input type="hidden" name="role" value="worker" id="roleInput">
+
+      <!-- Role selector -->
+      <div class="mb-4">
+        <label class="form-label">Signing in as</label>
+        <div class="kc-role-group">
+          <button type="button" class="kc-role-btn active" data-role="worker" onclick="setRole('worker')">
+            <i class="bi bi-person-fill"></i> Worker
+          </button>
+          <button type="button" class="kc-role-btn" data-role="employer" onclick="setRole('employer')">
+            <i class="bi bi-building"></i> Employer
+          </button>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="username">Username</label>
+        <div class="kc-input-wrap">
+          <i class="bi bi-person kc-input-icon"></i>
+          <input type="text" name="username" id="username" class="form-control" placeholder="your_username" required autocomplete="username">
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <div class="d-flex align-items-center justify-content-between mb-1">
+          <label class="form-label mb-0" for="password">Password</label>
+          <a href="#" class="small" style="color:var(--p);font-weight:600;">Forgot password?</a>
+        </div>
+        <div class="kc-input-wrap">
+          <i class="bi bi-lock kc-input-icon"></i>
+          <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required autocomplete="current-password" style="padding-right:2.75rem;">
+          <button type="button" class="border-0 bg-transparent position-absolute" style="right:.85rem;top:50%;transform:translateY(-50%);color:var(--muted);cursor:pointer;z-index:2;" onclick="togglePw('password', this)">
+            <i class="bi bi-eye"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-2 mb-4">
+        <div class="form-check mb-0">
+          <input class="form-check-input" type="checkbox" id="remember" name="remember">
+          <label class="form-check-label small" for="remember" style="color:var(--muted);">Remember me for 30 days</label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-pill w-100 py-3" style="font-size:.95rem;">
+        <i class="bi bi-box-arrow-in-right me-1"></i> Sign In
+      </button>
+    </form>
+
+    <!-- Divider -->
+    <div class="d-flex align-items-center gap-2 my-4">
+      <div class="flex-1 kc-divider-h"></div>
+      <span class="small text-muted px-2">New to Kaamgar Connect?</span>
+      <div class="flex-1 kc-divider-h"></div>
+    </div>
+
+    <a href="{% url 'accounts:register' %}" class="btn btn-secondary btn-pill w-100 py-3" style="font-size:.92rem;">
+      <i class="bi bi-stars me-1" style="color:var(--accent);"></i> Create a Free Account
+    </a>
+  </div>
+</div>
+
+<script>
+function setRole(role) {
+  document.getElementById('roleInput').value = role;
+  document.querySelectorAll('.kc-role-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.kc-role-btn[data-role="${role}"]`).classList.add('active');
+}
+function togglePw(id, btn) {
+  const inp = document.getElementById(id);
+  const isText = inp.type === 'text';
+  inp.type = isText ? 'password' : 'text';
+  btn.querySelector('i').className = isText ? 'bi bi-eye' : 'bi bi-eye-slash';
+}
+</script>
+{% endblock %}

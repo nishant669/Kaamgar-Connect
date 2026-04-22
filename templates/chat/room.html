@@ -1,0 +1,455 @@
+{% extends 'base.html' %}
+{% block title %}Chat – {{ other_user.get_full_name|default:other_user.username }}{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' %}{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Full-height chat layout within page ───────────── */
+.kc-page { padding: 0 !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="kc-chat-layout" id="chatLayout">
+
+  <!-- ── Contacts sidebar ─────────────────────────── -->
+  <div class="kc-chat-sidebar" id="chatSidebar">
+    <!-- Sidebar header -->
+    <div class="kc-chat-header">
+      <div class="fw-800" style="font-family:var(--font-display);font-size:.95rem;flex:1;">Messages</div>
+      <div class="kc-input-wrap flex-1" style="max-width:180px;">
+        <i class="bi bi-search kc-input-icon" style="font-size:.8rem;"></i>
+        <input type="text" class="form-control" placeholder="Search…" id="chatSearch"
+               style="height:34px;padding-left:2.25rem;border-radius:var(--r-pill);font-size:.8rem;">
+      </div>
+    </div>
+
+    <div class="kc-chat-list" id="chatList">
+      {% for room in all_rooms %}
+        {% if user.role == 'worker' %}
+          {% with other=room.employer %}
+          <a href="{% url 'chat:room' room.pk %}"
+             class="kc-chat-item text-decoration-none {% if room.pk == current_room.pk %}active{% endif %}"
+             data-name="{{ other.get_full_name|default:other.username|lower }}">
+            <div class="position-relative">
+              <div class="kc-avatar kc-avatar-sm flex-shrink-0">
+                {% if other.profile_photo %}<img src="{{ other.profile_photo.url }}" alt="">
+                {% else %}{{ other.first_name|first|upper|default:other.username|first|upper }}{% endif %}
+              </div>
+              <div class="chat-online-dot {% if room.pk == current_room.pk %}active{% endif %}"></div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="chat-name text-truncate" style="max-width:120px;">{{ other.get_full_name|default:other.username }}</span>
+                {% with lm=room.messages.last %}{% if lm %}<span class="chat-time">{{ lm.timestamp|time:"H:i" }}</span>{% endif %}{% endwith %}
+              </div>
+              <div class="chat-preview">{% with lm=room.messages.last %}{{ lm.text|default:"Start a conversation…"|truncatechars:32 }}{% endwith %}</div>
+            </div>
+          </a>
+          {% endwith %}
+        {% else %}
+          {% with other=room.worker %}
+          <a href="{% url 'chat:room' room.pk %}"
+             class="kc-chat-item text-decoration-none {% if room.pk == current_room.pk %}active{% endif %}"
+             data-name="{{ other.get_full_name|default:other.username|lower }}">
+            <div class="position-relative">
+              <div class="kc-avatar kc-avatar-sm flex-shrink-0">
+                {% if other.profile_photo %}<img src="{{ other.profile_photo.url }}" alt="">
+                {% else %}{{ other.first_name|first|upper|default:other.username|first|upper }}{% endif %}
+              </div>
+              <div class="chat-online-dot {% if room.pk == current_room.pk %}active{% endif %}"></div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="chat-name text-truncate" style="max-width:120px;">{{ other.get_full_name|default:other.username }}</span>
+                {% with lm=room.messages.last %}{% if lm %}<span class="chat-time">{{ lm.timestamp|time:"H:i" }}</span>{% endif %}{% endwith %}
+              </div>
+              <div class="chat-preview">{% with lm=room.messages.last %}{{ lm.text|default:"Start a conversation…"|truncatechars:32 }}{% endwith %}</div>
+            </div>
+          </a>
+          {% endwith %}
+        {% endif %}
+      {% empty %}
+        <div class="d-flex flex-column align-items-center justify-content-center p-4 text-center text-muted" style="padding-top:3rem!important;">
+          <i class="bi bi-chat-dots" style="font-size:2.5rem;opacity:.2;margin-bottom:1rem;"></i>
+          <div class="fw-600 small">No conversations</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ── Main chat area ────────────────────────────── -->
+  <div class="kc-chat-main" id="chatMain">
+
+    <!-- Chat top bar -->
+    <div class="kc-chat-header">
+      <!-- Mobile: back to sidebar -->
+      <button class="btn btn-ghost btn-icon-sm me-1 d-lg-none" id="chatBackBtn"
+              style="border:1px solid var(--border);">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+
+      <div class="position-relative">
+        <div class="kc-avatar kc-avatar-sm flex-shrink-0">
+          {% if other_user.profile_photo %}<img src="{{ other_user.profile_photo.url }}" alt="">
+          {% else %}{{ other_user.first_name|first|upper|default:other_user.username|first|upper }}{% endif %}
+        </div>
+        <div class="chat-online-dot active"></div>
+      </div>
+
+      <div class="flex-1">
+        <div class="fw-700" style="font-size:.9rem;line-height:1.2;">{{ other_user.get_full_name|default:other_user.username }}</div>
+        <div class="d-flex align-items-center gap-1 mt-1">
+          <span class="chat-online-indicator">
+            <i class="bi bi-circle-fill" style="font-size:.4rem;color:var(--success);"></i>
+            <span class="small fw-600" style="color:var(--success);font-size:.72rem;">Online</span>
+          </span>
+          <span class="small text-muted" id="typingStatus" style="font-size:.72rem;display:none;">
+            <i class="bi bi-three-dots" style="color:var(--muted);animation:pulse-dot 1s infinite;"></i> typing…
+          </span>
+        </div>
+      </div>
+
+      <div class="d-flex gap-1 ms-auto">
+        {% if other_user.phone %}
+        <a href="tel:{{ other_user.phone }}" class="btn btn-ghost btn-icon-sm" title="Call">
+          <i class="bi bi-telephone"></i>
+        </a>
+        {% endif %}
+        <a href="{% if other_user.role == 'worker' %}{% url 'workers:detail' other_user.pk %}{% else %}{% url 'accounts:profile' %}{% endif %}"
+           class="btn btn-ghost btn-icon-sm" title="View Profile">
+          <i class="bi bi-person-badge"></i>
+        </a>
+        <button class="btn btn-ghost btn-icon-sm" title="More options" id="chatMenuBtn">
+          <i class="bi bi-three-dots-vertical"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Dot-grid background for messages area -->
+    <div class="kc-chat-messages" id="chat-messages"
+         data-poll-url="{% url 'chat:poll' current_room.pk %}"
+         data-room-pk="{{ current_room.pk }}"
+         data-last-id="{{ messages.last.id|default:0 }}">
+
+      {% if messages %}
+        <!-- Date separator for today -->
+        <div class="chat-date-sep">
+          <span>Today</span>
+        </div>
+
+        {% for msg in messages %}
+        <div class="kc-msg {% if msg.sender == user %}mine{% else %}theirs{% endif %} d-flex flex-column kc-fade-in"
+             data-msg-id="{{ msg.id }}">
+          {% if msg.sender != user %}
+          <div class="kc-msg-avatar">
+            <div class="kc-avatar kc-avatar-xs">
+              {% if msg.sender.profile_photo %}<img src="{{ msg.sender.profile_photo.url }}" alt="">
+              {% else %}{{ msg.sender.first_name|first|upper|default:msg.sender.username|first|upper }}{% endif %}
+            </div>
+          </div>
+          {% endif %}
+          <div class="kc-msg-bubble">{{ msg.text }}</div>
+          <div class="kc-msg-time">
+            {{ msg.timestamp|time:"H:i" }}
+            {% if msg.sender == user %}
+              <i class="bi bi-check2{% if msg.is_read %}-all text-info{% endif %} ms-1" style="font-size:.65rem;"></i>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+
+      {% else %}
+        <!-- Empty state -->
+        <div class="chat-empty-state" id="chatEmptyState">
+          <div style="font-size:3.5rem;margin-bottom:1rem;opacity:.3;">👋</div>
+          <div class="fw-700" style="font-family:var(--font-display);margin-bottom:.5rem;">Start the conversation!</div>
+          <div class="small text-muted">Say hello to <strong>{{ other_user.first_name|default:other_user.username }}</strong>.<br>Your messages are private and secure.</div>
+        </div>
+      {% endif %}
+
+      <!-- Typing indicator -->
+      <div class="kc-typing-indicator d-none" id="typingBubble">
+        <div class="kc-avatar kc-avatar-xs">
+          {% if other_user.profile_photo %}<img src="{{ other_user.profile_photo.url }}" alt="">
+          {% else %}{{ other_user.first_name|first|upper|default:other_user.username|first|upper }}{% endif %}
+        </div>
+        <div class="kc-typing-dots">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input area -->
+    <div class="kc-chat-input-area">
+      <button class="btn btn-ghost btn-icon-sm" title="Attach file" style="border:1px solid var(--border);flex-shrink:0;">
+        <i class="bi bi-paperclip"></i>
+      </button>
+
+      <form method="post" id="chatForm" class="d-flex gap-2 flex-1">
+        {% csrf_token %}
+        <div class="kc-input-wrap flex-1">
+          <input type="text" name="text" class="kc-chat-input"
+                 placeholder="Type a message…" autocomplete="off"
+                 id="messageInput" required>
+        </div>
+        <button type="submit" class="btn btn-primary kc-send-btn"
+                style="width:44px;height:44px;border-radius:50%;padding:0;flex-shrink:0;" id="sendButton">
+          <i class="bi bi-send-fill" style="font-size:.9rem;"></i>
+        </button>
+      </form>
+
+      <button class="btn btn-ghost btn-icon-sm" title="Emoji" style="border:1px solid var(--border);flex-shrink:0;">
+        <i class="bi bi-emoji-smile"></i>
+      </button>
+    </div>
+
+  </div><!-- /chat-main -->
+</div><!-- /chat-layout -->
+
+<style>
+/* Extra chat styles */
+.chat-online-dot {
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--muted-light);
+  border: 2px solid var(--surface);
+}
+.chat-online-dot.active { background: var(--success); }
+
+.chat-date-sep {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: .5rem 0;
+}
+.chat-date-sep::before,
+.chat-date-sep::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.chat-date-sep span {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--muted);
+  font-family: var(--font-display);
+  white-space: nowrap;
+}
+
+.chat-empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+/* Message avatar for theirs */
+.kc-msg.theirs { position: relative; padding-left: 2.25rem; }
+.kc-msg-avatar {
+  position: absolute;
+  left: 0;
+  bottom: 18px;
+}
+
+/* Typing indicator */
+.kc-typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  align-self: flex-start;
+  padding-left: 2.25rem;
+  position: relative;
+}
+.kc-typing-indicator .kc-avatar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+.kc-typing-dots {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  border-bottom-left-radius: 4px;
+  padding: .65rem 1rem;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  box-shadow: var(--shadow-xs);
+}
+.kc-typing-dots span {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--muted-light);
+  display: block;
+}
+.kc-typing-dots span:nth-child(1) { animation: typing-bounce .9s infinite 0s; }
+.kc-typing-dots span:nth-child(2) { animation: typing-bounce .9s infinite .2s; }
+.kc-typing-dots span:nth-child(3) { animation: typing-bounce .9s infinite .4s; }
+@keyframes typing-bounce {
+  0%,100% { transform: translateY(0); opacity: .4; }
+  40%      { transform: translateY(-5px); opacity: 1; }
+}
+
+/* Incoming message animation */
+@keyframes msg-slide-in {
+  from { opacity: 0; transform: translateY(10px) scale(.97); }
+  to   { opacity: 1; transform: none; }
+}
+.kc-msg { animation: msg-slide-in .25s var(--ease) both; }
+
+/* Mobile: hide sidebar when chat open */
+@media (max-width: 767px) {
+  .kc-chat-layout.show-main .kc-chat-sidebar { display: none; }
+  .kc-chat-layout:not(.show-main) .kc-chat-main { display: none; }
+  .kc-chat-layout { grid-template-columns: 1fr; }
+}
+</style>
+
+<script>
+(function () {
+  'use strict';
+  const msgBox   = document.getElementById('chat-messages');
+  const form     = document.getElementById('chatForm');
+  const input    = document.getElementById('messageInput');
+  const sendBtn  = document.getElementById('sendButton');
+  const layout   = document.getElementById('chatLayout');
+  const backBtn  = document.getElementById('chatBackBtn');
+
+  // On mobile: show main chat panel
+  if (window.innerWidth < 768) layout.classList.add('show-main');
+  if (backBtn) backBtn.addEventListener('click', () => layout.classList.remove('show-main'));
+
+  // Scroll to bottom
+  function scrollBottom() {
+    if (msgBox) msgBox.scrollTop = msgBox.scrollHeight;
+  }
+  scrollBottom();
+
+  // Send on Enter
+  if (input) input.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendBtn && sendBtn.click(); }
+  });
+
+  // Chat search filter
+  const chatSearch = document.getElementById('chatSearch');
+  if (chatSearch) {
+    chatSearch.addEventListener('input', () => {
+      const q = chatSearch.value.toLowerCase();
+      document.querySelectorAll('.kc-chat-item').forEach(item => {
+        item.style.display = (item.dataset.name || '').includes(q) ? '' : 'none';
+      });
+    });
+  }
+
+  // AJAX send + poll
+  const pollUrl = msgBox?.dataset.pollUrl;
+  if (!pollUrl) return;
+  let lastId = parseInt(msgBox.dataset.lastId || 0);
+  const csrf  = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+
+  // Escape HTML
+  function esc(t) {
+    return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  }
+
+  // Append a message bubble
+  function appendMsg(m) {
+    // Remove empty state
+    const empty = document.getElementById('chatEmptyState');
+    if (empty) empty.remove();
+
+    const div = document.createElement('div');
+    div.dataset.msgId = m.id;
+    div.className = `kc-msg ${m.mine ? 'mine' : 'theirs'} d-flex flex-column kc-fade-in`;
+
+    const avatarHtml = m.mine ? '' : `
+      <div class="kc-msg-avatar">
+        <div class="kc-avatar kc-avatar-xs">${esc(m.initial || '?')}</div>
+      </div>`;
+
+    const readIcon = m.mine
+      ? `<i class="bi bi-check2-all ms-1" style="font-size:.65rem;opacity:.7;"></i>`
+      : '';
+
+    div.innerHTML = `
+      ${avatarHtml}
+      <div class="kc-msg-bubble">${esc(m.text)}</div>
+      <div class="kc-msg-time">${m.time}${readIcon}</div>
+    `;
+    msgBox.appendChild(div);
+    scrollBottom();
+  }
+
+  // AJAX form submit
+  if (form) {
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+
+      // Optimistic UI
+      const tempId = 'temp-' + Date.now();
+      const div = document.createElement('div');
+      div.dataset.msgId = tempId;
+      div.className = 'kc-msg mine d-flex flex-column kc-fade-in';
+      div.innerHTML = `
+        <div class="kc-msg-bubble" style="opacity:.7;">${esc(text)}</div>
+        <div class="kc-msg-time">Sending… <i class="bi bi-clock ms-1" style="font-size:.65rem;"></i></div>
+      `;
+      const empty = document.getElementById('chatEmptyState');
+      if (empty) empty.remove();
+      msgBox.appendChild(div);
+      scrollBottom();
+
+      input.value = '';
+      input.focus();
+
+      try {
+        const fd = new FormData();
+        fd.append('text', text);
+        fd.append('csrfmiddlewaretoken', csrf);
+        await fetch(window.location.href, { method: 'POST', body: fd });
+
+        // Remove temp + fetch real
+        div.remove();
+        const res  = await fetch(`${pollUrl}?after=${lastId}`);
+        const data = await res.json();
+        data.messages?.forEach(m => {
+          if (!document.querySelector(`[data-msg-id="${m.id}"]`)) {
+            appendMsg(m);
+            if (m.id > lastId) lastId = m.id;
+          }
+        });
+      } catch (err) {
+        div.remove();
+        if (typeof Toast !== 'undefined') Toast.error('Failed to send. Please try again.');
+      }
+    });
+  }
+
+  // Poll for new messages every 3 seconds
+  setInterval(async () => {
+    try {
+      const res  = await fetch(`${pollUrl}?after=${lastId}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      data.messages?.forEach(m => {
+        if (!document.querySelector(`[data-msg-id="${m.id}"]`)) {
+          appendMsg(m);
+          if (m.id > lastId) lastId = m.id;
+        }
+      });
+    } catch (_) {}
+  }, 3000);
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Saved Jobs{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' %}{% endblock %}
+{% block content %}
+<div class="kc-page-header">
+  <div>
+    <h1 class="kc-page-title">Saved Jobs</h1>
+    <p class="kc-page-subtitle">{{ saves|length }} job{{ saves|length|pluralize }} bookmarked</p>
+  </div>
+  <a href="{% url 'jobs:list' %}" class="btn btn-primary btn-pill"><i class="bi bi-search me-1"></i> Browse More</a>
+</div>
+
+{% if saves %}
+<div class="row g-4">
+  {% for save in saves %}
+  <div class="col-md-6 col-xl-4">
+    <div class="kc-job-card position-relative" style="cursor:default;">
+      <!-- Unsave button -->
+      <button class="btn btn-ghost btn-icon-sm position-absolute save-job-btn"
+        style="top:.85rem;right:.85rem;color:#f59e0b;"
+        data-url="{% url 'jobs:save' save.job.pk %}"
+        title="Remove from saved">
+        <i class="bi bi-bookmark-heart-fill save-animate"></i>
+      </button>
+      <div class="d-flex align-items-start gap-3 mb-3">
+        <div class="kc-job-icon">{{ save.job.category_icon }}</div>
+        <div class="flex-1 min-w-0" style="padding-right:2rem;">
+          <a href="{% url 'jobs:detail' save.job.pk %}" class="kc-job-title text-decoration-none">{{ save.job.title }}</a>
+          <div class="kc-job-company">{{ save.job.employer.get_full_name|default:save.job.employer.username }}</div>
+        </div>
+      </div>
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="kc-badge badge-gray"><i class="bi bi-geo-alt me-1"></i>{{ save.job.location }}</span>
+        <span class="kc-badge badge-primary">{{ save.job.get_job_type_display }}</span>
+      </div>
+      <div class="d-flex align-items-center justify-content-between pt-3" style="border-top:1px solid var(--border);">
+        <div class="kc-salary">₹{{ save.job.salary_min|floatformat:0 }}–{{ save.job.salary_max|floatformat:0 }}/mo</div>
+        <a href="{% url 'jobs:detail' save.job.pk %}" class="btn btn-primary btn-sm btn-pill">Apply Now</a>
+      </div>
+      <div class="text-muted mt-2" style="font-size:.72rem;"><i class="bi bi-bookmark me-1"></i>Saved {{ save.saved_at|timesince }} ago</div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="kc-empty kc-card p-5">
+  <div class="empty-icon">🔖</div>
+  <div class="empty-title">No saved jobs yet</div>
+  <div class="empty-desc">Browse jobs and click the bookmark icon to save them for later.</div>
+  <a href="{% url 'jobs:list' %}" class="btn btn-primary btn-pill mt-3">Browse Jobs</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% block title %}Browse Workers{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' %}{% endblock %}
+{% block content %}
+<div class="kc-page-header">
+  <div>
+    <h1 class="kc-page-title">Browse Workers</h1>
+    <p class="kc-page-subtitle">{{ workers|length }} skilled professional{{ workers|length|pluralize }} available</p>
+  </div>
+</div>
+
+<!-- Filters -->
+<form method="get" class="mb-4">
+  <div class="kc-card p-3">
+    <div class="row g-2 align-items-end">
+      <div class="col-12 col-md-3">
+        <label class="form-label">Search</label>
+        <div class="kc-input-wrap">
+          <i class="bi bi-search kc-input-icon"></i>
+          <input type="text" name="search" class="form-control" placeholder="Name, skill, city…" value="{{ filters.search }}">
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <label class="form-label">Skill</label>
+        <select name="skills" class="form-select">
+          <option value="">All Skills</option>
+          {% for val, label in skill_choices %}
+          <option value="{{ val }}" {% if filters.skill == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-md-2">
+        <label class="form-label">Availability</label>
+        <select name="available" class="form-select">
+          <option value="">All Workers</option>
+          <option value="1" {% if filters.available == '1' %}selected{% endif %}>Available Now</option>
+        </select>
+      </div>
+      <div class="col-6 col-md-2">
+        <label class="form-label">Min Experience</label>
+        <input type="number" name="min_exp" class="form-control" placeholder="Years" value="{{ filters.min_exp }}" min="0">
+      </div>
+      <div class="col-6 col-md-2">
+        <label class="form-label">Max Rate (₹/day)</label>
+        <input type="number" name="max_rate" class="form-control" placeholder="e.g. 1000" value="{{ filters.max_rate }}">
+      </div>
+      <div class="col-12 col-md-1 d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i></button>
+        {% if filters.search or filters.skill or filters.available or filters.min_exp or filters.max_rate %}
+        <a href="{% url 'workers:list' %}" class="btn btn-secondary"><i class="bi bi-x"></i></a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</form>
+
+<!-- Sort bar -->
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <p class="text-muted small mb-0"><strong class="text-body">{{ workers|length }}</strong> worker{{ workers|length|pluralize }} found</p>
+</div>
+
+{% if workers %}
+<div class="row g-4">
+  {% for wu in workers %}
+  <div class="col-md-6 col-xl-4 kc-reveal">
+    <div class="kc-worker-card">
+      <!-- Avatar + name -->
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="kc-avatar kc-avatar-lg flex-shrink-0">
+          {% if wu.profile_photo %}<img src="{{ wu.profile_photo.url }}" alt="">
+          {% else %}{{ wu.first_name|first|upper|default:wu.username|first|upper }}{% endif %}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="fw-800 text-truncate" style="font-family:var(--font-display);">{{ wu.get_full_name|default:wu.username }}</div>
+          <div class="small fw-600" style="color:var(--p);">{{ wu.worker_profile.get_skills_display }}</div>
+          <div class="text-muted small">📍 {{ wu.city|default:"Location not set" }}</div>
+        </div>
+      </div>
+
+      <!-- Badges -->
+      <div class="d-flex flex-wrap gap-1 mb-3">
+        {% if wu.worker_profile.availability %}
+          <span class="kc-badge badge-success"><i class="bi bi-circle-fill me-1" style="font-size:.4rem;"></i>Available</span>
+        {% else %}
+          <span class="kc-badge badge-warning">Unavailable</span>
+        {% endif %}
+        {% if wu.worker_profile.aadhar_verified %}
+          <span class="kc-badge badge-verified"><i class="bi bi-patch-check-fill me-1"></i>Verified</span>
+        {% endif %}
+        {% if wu.worker_profile.experience_years > 5 %}
+          <span class="kc-badge badge-primary">Expert</span>
+        {% endif %}
+      </div>
+
+      <!-- Stats row -->
+      <div class="d-flex justify-content-between align-items-center mb-3 py-2"
+           style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);font-size:.8rem;color:var(--muted);">
+        <span><i class="bi bi-star-fill text-warning me-1"></i>{{ wu.worker_profile.rating }}/5</span>
+        <span><i class="bi bi-calendar3 me-1"></i>{{ wu.worker_profile.experience_years }} yrs</span>
+        <span><i class="bi bi-check2-circle me-1"></i>{{ wu.worker_profile.total_jobs }} jobs</span>
+      </div>
+
+      <!-- Extra skills tags -->
+      {% if wu.worker_profile.extra_skills_list %}
+      <div class="d-flex flex-wrap gap-1 mb-3">
+        {% for skill in wu.worker_profile.extra_skills_list|slice:":3" %}
+        <span style="background:var(--surface2);color:var(--muted);padding:.15rem .6rem;border-radius:var(--r-pill);font-size:.68rem;border:1px solid var(--border);">{{ skill }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Rate + actions -->
+      <div class="d-flex align-items-center justify-content-between">
+        <div>
+          <span class="fw-800" style="font-size:1.05rem;color:var(--success);">₹{{ wu.worker_profile.daily_rate }}</span>
+          <span class="text-muted small">/day</span>
+        </div>
+        <div class="d-flex gap-2">
+          <a href="{% url 'workers:detail' wu.pk %}" class="btn btn-secondary btn-sm btn-pill">View Profile</a>
+          {% if user.is_authenticated and wu != user %}
+          <a href="{% url 'chat:start' wu.pk %}" class="btn btn-primary btn-sm btn-pill">
+            <i class="bi bi-chat-dots me-1"></i>Hire
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="kc-empty kc-card p-5">
+  <div class="empty-icon">👥</div>
+  <div class="empty-title">No Workers Found</div>
+  <div class="empty-desc">Try adjusting your search filters to find the right worker.</div>
+  <a href="{% url 'workers:list' %}" class="btn btn-primary btn-pill mt-3">Clear Filters</a>
+</div>
+{% endif %}
+{% endblock %}

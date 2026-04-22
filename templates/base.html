@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-bs-theme="dark" style="visibility:hidden">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Kaamgar Connect — India's premium local job marketplace for skilled workers and employers.">
+  <title>{% block title %}Kaamgar Connect{% endblock %} | Local Job Marketplace</title>
+  {% load static %}
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- Sora + DM Sans -->
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <!-- Dark Theme CSS -->
+  <link rel="stylesheet" href="{% static 'css/dark-theme.css' %}">
+  <!-- Custom -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><rect width='40' height='40' rx='11' fill='%234f46e5'/><text x='50%25' y='70%25' font-size='22' font-weight='800' fill='white' text-anchor='middle' font-family='sans-serif'>K</text></svg>">
+  <!-- Make visible instantly once CSS loads -->
+  <style>body{visibility:hidden}body.loaded{visibility:visible}</style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- Toast container -->
+<div id="toastContainer"></div>
+
+<!-- ═══ NAVBAR ═══════════════════════════════════════════════ -->
+<nav class="kc-navbar navbar navbar-expand-lg" id="mainNavbar">
+  <div class="container-fluid px-4">
+
+    <!-- Brand -->
+    <a class="navbar-brand" href="{% url 'accounts:landing' %}">
+      <div class="brand-icon">K</div>
+      <span class="brand-text d-none d-sm-inline">Kaamgar Connect</span>
+    </a>
+
+    <!-- Mobile: notification + hamburger -->
+    <div class="d-flex align-items-center gap-2 d-lg-none">
+      {% if user.is_authenticated %}
+      <a href="{% url 'notifications:list' %}" class="kc-icon-btn" style="text-decoration:none;">
+        <i class="bi bi-bell"></i>
+        {% if unread_notifications %}<span class="notif-badge">{{ unread_notifications }}</span>{% endif %}
+      </a>
+      {% endif %}
+      <button class="btn kc-icon-btn" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
+        <i class="bi bi-list fs-5"></i>
+      </button>
+    </div>
+
+    <!-- Desktop nav -->
+    <div class="collapse navbar-collapse" id="navbarMain">
+      <!-- Navbar search -->
+      <div class="navbar-search ms-3 d-none d-xl-flex">
+        <i class="bi bi-search"></i>
+        <input type="text" id="navSearchInput" placeholder="Search jobs, skills…" autocomplete="off">
+      </div>
+      <ul class="navbar-nav me-auto ps-2 gap-1">
+        {% if user.is_authenticated %}
+          <li class="nav-item">
+            <a class="kc-nav-link nav-link {% if request.resolver_match.namespace == 'dashboard' %}active{% endif %}" href="{% url 'dashboard:home' %}">
+              <i class="bi bi-grid-1x2"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="kc-nav-link nav-link {% if request.resolver_match.namespace == 'jobs' %}active{% endif %}" href="{% url 'jobs:list' %}">
+              <i class="bi bi-briefcase"></i> Jobs
+            </a>
+          </li>
+          {% if user.role == 'employer' %}
+          <li class="nav-item">
+            <a class="kc-nav-link nav-link" href="{% url 'jobs:post' %}">
+              <i class="bi bi-plus-circle"></i> Post Job
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="kc-nav-link nav-link" href="{% url 'jobs:my_jobs' %}">
+              <i class="bi bi-collection-fill"></i> My Jobs
+            </a>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="kc-nav-link nav-link {% if request.resolver_match.namespace == 'applications' %}active{% endif %}" href="{% url 'applications:list' %}">
+              <i class="bi bi-file-earmark-text"></i> Applications
+            </a>
+          </li>
+          {% endif %}
+          <li class="nav-item">
+            <a class="kc-nav-link nav-link {% if request.resolver_match.namespace == 'workers' %}active{% endif %}" href="{% url 'workers:list' %}">
+              <i class="bi bi-people"></i> Workers
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="kc-nav-link nav-link {% if request.resolver_match.namespace == 'chat' %}active{% endif %}" href="{% url 'chat:inbox' %}">
+              <i class="bi bi-chat-dots"></i> Messages
+            </a>
+          </li>
+        {% else %}
+          <li class="nav-item"><a class="kc-nav-link nav-link" href="{% url 'accounts:landing' %}"><i class="bi bi-house"></i> Home</a></li>
+          <li class="nav-item"><a class="kc-nav-link nav-link" href="{% url 'jobs:list' %}"><i class="bi bi-briefcase"></i> Jobs</a></li>
+          <li class="nav-item"><a class="kc-nav-link nav-link" href="{% url 'workers:list' %}"><i class="bi bi-people"></i> Workers</a></li>
+        {% endif %}
+      </ul>
+
+      <div class="d-flex align-items-center gap-2">
+        {% if user.is_authenticated %}
+        <!-- Notifications bell -->
+        <a href="{% url 'notifications:list' %}" class="kc-icon-btn position-relative" style="text-decoration:none;" title="Notifications">
+          <i class="bi bi-bell"></i>
+          {% if unread_notifications %}
+          <span class="notif-badge">{{ unread_notifications }}</span>
+          {% endif %}
+        </a>
+
+        <!-- Avatar dropdown -->
+        <div class="dropdown">
+          <button class="kc-avatar-btn dropdown-toggle border-0 bg-transparent p-0" data-bs-toggle="dropdown" data-bs-offset="0,6">
+            <div class="kc-avatar kc-avatar-sm">
+              {% if user.profile_photo %}
+                <img src="{{ user.profile_photo.url }}" alt="{{ user.username }}">
+              {% else %}
+                {{ user.first_name|first|upper|default:user.username|first|upper }}
+              {% endif %}
+            </div>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end kc-dropdown">
+            <div class="user-header">
+              <div class="d-flex align-items-center gap-2">
+                <div class="kc-avatar kc-avatar-sm">{{ user.first_name|first|upper|default:user.username|first|upper }}</div>
+                <div>
+                  <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                  <div class="user-role">{{ user.role }} · {{ user.city|default:"No city" }}</div>
+                </div>
+              </div>
+            </div>
+            <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="bi bi-person-circle"></i> My Profile</a></li>
+            <li><a class="dropdown-item" href="{% url 'dashboard:home' %}"><i class="bi bi-grid-1x2"></i> Dashboard</a></li>
+            <li><a class="dropdown-item" href="{% url 'notifications:list' %}">
+              <i class="bi bi-bell"></i> Notifications
+              {% if unread_notifications %}<span class="badge bg-danger ms-auto">{{ unread_notifications }}</span>{% endif %}
+            </a></li>
+            <li><a class="dropdown-item" href="{% url 'accounts:change_password' %}"><i class="bi bi-shield-lock"></i> Change Password</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}" data-confirm="Are you sure you want to logout?"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+          </ul>
+        </div>
+        {% else %}
+        <a href="{% url 'accounts:login' %}" class="btn btn-secondary btn-sm">Login</a>
+        <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-sm btn-pill px-4">Get Started</a>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+<!-- ═══ MOBILE OFFCANVAS ════════════════════════════════──── -->
+<div class="offcanvas offcanvas-start kc-offcanvas" id="mobileMenu" tabindex="-1">
+  <div class="offcanvas-header">
+    <div class="d-flex align-items-center gap-2">
+      <div class="brand-icon" style="width:32px;height:32px;font-size:1rem;">K</div>
+      <span class="fw-700" style="font-family:var(--font-display);">Kaamgar Connect</span>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+    {% if user.is_authenticated %}
+    <div class="kc-user-pill mb-1">
+      <div class="kc-avatar kc-avatar-sm">{{ user.first_name|first|upper|default:user.username|first|upper }}</div>
+      <div>
+        <div class="fw-700 small">{{ user.get_full_name|default:user.username }}</div>
+        <div class="text-muted" style="font-size:.72rem;text-transform:capitalize;">{{ user.role }} Account</div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="sidebar-section-label">Navigation</div>
+    {% if user.is_authenticated %}
+      <a href="{% url 'dashboard:home' %}" class="kc-sidebar-link"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+      <a href="{% url 'jobs:list' %}" class="kc-sidebar-link"><i class="bi bi-briefcase"></i> Browse Jobs</a>
+      {% if user.role == 'employer' %}
+        <a href="{% url 'jobs:post' %}" class="kc-sidebar-link"><i class="bi bi-plus-circle"></i> Post Job</a>
+        <a href="{% url 'jobs:my_jobs' %}" class="kc-sidebar-link"><i class="bi bi-collection-fill"></i> My Jobs</a>
+      {% else %}
+        <a href="{% url 'applications:list' %}" class="kc-sidebar-link"><i class="bi bi-file-earmark-text"></i> Applications</a>
+      {% endif %}
+      <a href="{% url 'workers:list' %}" class="kc-sidebar-link"><i class="bi bi-people"></i> Workers</a>
+      <a href="{% url 'chat:inbox' %}" class="kc-sidebar-link"><i class="bi bi-chat-dots"></i> Messages</a>
+      <div class="sidebar-section-label mt-2">Account</div>
+      <a href="{% url 'accounts:profile' %}" class="kc-sidebar-link"><i class="bi bi-person-circle"></i> Profile</a>
+      <a href="{% url 'notifications:list' %}" class="kc-sidebar-link"><i class="bi bi-bell"></i> Notifications {% if unread_notifications %}<span class="sidebar-notif">{{ unread_notifications }}</span>{% endif %}</a>
+    {% else %}
+      <a href="{% url 'accounts:landing' %}" class="kc-sidebar-link"><i class="bi bi-house"></i> Home</a>
+      <a href="{% url 'jobs:list' %}" class="kc-sidebar-link"><i class="bi bi-briefcase"></i> Jobs</a>
+      <a href="{% url 'workers:list' %}" class="kc-sidebar-link"><i class="bi bi-people"></i> Workers</a>
+      <div class="sidebar-section-label mt-2">Account</div>
+      <a href="{% url 'accounts:login' %}" class="kc-sidebar-link"><i class="bi bi-key"></i> Login</a>
+      <a href="{% url 'accounts:register' %}" class="kc-sidebar-link fw-600" style="color:var(--p)"><i class="bi bi-stars"></i> Register Free</a>
+    {% endif %}
+
+    <hr style="border-color:var(--border);margin:1rem 0;">
+    <button class="kc-sidebar-link w-100 border-0 bg-transparent text-start" data-theme-toggle>
+      <i class="bi bi-moon-stars-fill" data-theme-icon></i>
+      <span data-theme-label>Dark Mode</span>
+    </button>
+    {% if user.is_authenticated %}
+    <a href="{% url 'accounts:logout' %}" class="kc-sidebar-link" style="color:var(--danger);" data-confirm="Log out?">
+      <i class="bi bi-box-arrow-right"></i> Logout
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ═══ FLASH MESSAGES ══════════════════════════════════════ -->
+{% if messages %}
+<div id="flashMessages" class="px-4" style="margin-top:1rem;">
+  {% for message in messages %}
+  <div class="kc-alert kc-alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %} d-flex align-items-center gap-2 mb-2">
+    <i class="bi bi-{% if message.tags == 'error' %}x-circle-fill{% elif message.tags == 'success' %}check-circle-fill{% elif message.tags == 'warning' %}exclamation-triangle-fill{% else %}info-circle-fill{% endif %}" style="flex-shrink:0;font-size:1rem;"></i>
+    <span style="flex:1;font-size:.9rem;">{{ message }}</span>
+    <button class="btn-close btn-close-sm" style="width:20px;height:20px;"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- ═══ MAIN LAYOUT ═════════════════════════════════════════ -->
+{% block full_content %}
+<div class="kc-layout" id="mainLayout">
+  {% block sidebar %}{% endblock %}
+  <main class="kc-main" id="mainContent">
+    <div class="kc-page {% block page_class %}{% endblock %}">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+</div>
+{% endblock %}
+
+<!-- ═══ FOOTER ══════════════════════════════════════════════ -->
+<footer class="kc-footer">
+  <div class="container">
+    <div class="row g-4 py-5">
+      <div class="col-lg-4 col-md-6">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <div class="brand-icon" style="width:32px;height:32px;font-size:1rem;">K</div>
+          <span class="footer-brand">Kaamgar Connect</span>
+        </div>
+        <p class="small lh-relaxed mb-3" style="color:#9ca3af;">India's trusted local job marketplace — connecting skilled workers with employers across Bhopal, Indore &amp; beyond.</p>
+        <div class="d-flex gap-2">
+          <a href="#" class="kc-social-btn"><i class="bi bi-twitter-x"></i></a>
+          <a href="#" class="kc-social-btn"><i class="bi bi-linkedin"></i></a>
+          <a href="#" class="kc-social-btn"><i class="bi bi-instagram"></i></a>
+          <a href="mailto:hello@kaamgar.com" class="kc-social-btn"><i class="bi bi-envelope"></i></a>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-3 col-6">
+        <div class="footer-section-title">Platform</div>
+        <ul class="list-unstyled d-flex flex-column gap-2">
+          <li><a href="{% url 'jobs:list' %}" class="footer-link">Browse Jobs</a></li>
+          <li><a href="{% url 'workers:list' %}" class="footer-link">Find Workers</a></li>
+          <li><a href="{% url 'accounts:register' %}" class="footer-link">Register</a></li>
+          {% if user.is_authenticated and user.role == 'employer' %}<li><a href="{% url 'jobs:post' %}" class="footer-link">Post a Job</a></li>{% endif %}
+        </ul>
+      </div>
+      <div class="col-lg-2 col-md-3 col-6">
+        <div class="footer-section-title">Company</div>
+        <ul class="list-unstyled d-flex flex-column gap-2">
+          <li><a href="#about" class="footer-link">About Us</a></li>
+          <li><a href="#team" class="footer-link">Our Team</a></li>
+          <li><a href="#contact" class="footer-link">Contact</a></li>
+          <li><a href="#" class="footer-link">Privacy Policy</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4 col-md-6">
+        <div class="footer-section-title">Contact</div>
+        <ul class="list-unstyled d-flex flex-column gap-2 small" style="color:#9ca3af;">
+          <li><i class="bi bi-envelope me-2" style="color:#6366f1;"></i>hello@kaamgar.com</li>
+          <li><i class="bi bi-telephone me-2" style="color:#6366f1;"></i>+91 98765 43210</li>
+          <li><i class="bi bi-geo-alt me-2" style="color:#6366f1;"></i>Bhopal, MP 462001</li>
+          <li><i class="bi bi-clock me-2" style="color:#6366f1;"></i>Mon–Sat, 9am – 6pm IST</li>
+        </ul>
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(255,255,255,.08);"></div>
+    <div class="d-flex flex-wrap justify-content-between align-items-center py-4 gap-2" style="color:#6b7280;font-size:.82rem;">
+      <span>© 2025 Kaamgar Connect. All rights reserved.</span>
+      <div class="d-flex gap-3">
+        <a href="#" class="footer-link">Terms</a>
+        <a href="#" class="footer-link">Privacy</a>
+      </div>
+      <span>Made with <span style="color:#e11d48">♥</span> in Bhopal, India</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/main.js' %}"></script>
+<script>
+  // Show body after JS loads (prevent FOUC)
+  document.body.classList.add('loaded');
+  document.documentElement.style.visibility = 'visible';
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

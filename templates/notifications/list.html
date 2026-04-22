@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block title %}Notifications{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' %}{% endblock %}
+{% block content %}
+
+<!-- Header -->
+<div class="kc-page-header">
+  <div>
+    <div style="font-size:.78rem;font-weight:600;color:var(--p);letter-spacing:.07em;text-transform:uppercase;font-family:var(--font-display);margin-bottom:.3rem;">
+      <i class="bi bi-bell-fill me-1"></i> Activity
+    </div>
+    <h1 class="kc-page-title">Notifications</h1>
+    <p class="kc-page-subtitle">
+      {% if unread %}
+        <span class="kc-badge badge-danger">{{ unread }} unread</span>
+        <span class="ms-2 text-muted">— stay up to date</span>
+      {% else %}
+        <i class="bi bi-check-circle-fill text-success me-1"></i> All caught up!
+      {% endif %}
+    </p>
+  </div>
+  {% if notifications %}
+  <a href="{% url 'notifications:mark_read' %}" class="btn btn-secondary btn-pill btn-sm">
+    <i class="bi bi-check-all me-1"></i> Mark All Read
+  </a>
+  {% endif %}
+</div>
+
+{% if notifications %}
+<!-- Notifications list -->
+<div class="kc-card overflow-hidden">
+  {% for notif in notifications %}
+  <div class="notif-item {% if not notif.is_read %}unread{% endif %} notif-item-enhanced"
+       data-link="{{ notif.link|default:'#' }}"
+       style="cursor:{% if notif.link %}pointer{% else %}default{% endif %};">
+
+    <!-- Icon -->
+    <div class="notif-icon-enhanced">
+      {% if notif.ntype == 'application' %}
+        <div class="notif-icon-circle" style="background:var(--p-soft);color:var(--p);">
+          <i class="bi bi-file-earmark-text-fill"></i>
+        </div>
+      {% elif notif.ntype == 'status' %}
+        <div class="notif-icon-circle" style="background:rgba(5,150,105,.1);color:var(--success);">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+      {% elif notif.ntype == 'message' %}
+        <div class="notif-icon-circle" style="background:rgba(139,92,246,.1);color:#8b5cf6;">
+          <i class="bi bi-chat-dots-fill"></i>
+        </div>
+      {% elif notif.ntype == 'review' %}
+        <div class="notif-icon-circle" style="background:var(--accent-soft);color:var(--warning);">
+          <i class="bi bi-star-fill"></i>
+        </div>
+      {% elif notif.ntype == 'job' %}
+        <div class="notif-icon-circle" style="background:rgba(20,184,166,.1);color:#14b8a6;">
+          <i class="bi bi-briefcase-fill"></i>
+        </div>
+      {% else %}
+        <div class="notif-icon-circle" style="background:var(--surface2);color:var(--muted);">
+          <i class="bi bi-bell-fill"></i>
+        </div>
+      {% endif %}
+      {% if not notif.is_read %}
+        <div class="notif-unread-dot"></div>
+      {% endif %}
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 min-w-0">
+      <div class="fw-{% if not notif.is_read %}700{% else %}500{% endif %} mb-1" style="font-size:.9rem;color:var(--text);">
+        {{ notif.title }}
+      </div>
+      {% if notif.body %}
+      <div class="text-muted lh-relaxed" style="font-size:.82rem;margin-bottom:.35rem;">{{ notif.body }}</div>
+      {% endif %}
+      <div class="d-flex align-items-center gap-2">
+        <span style="font-size:.72rem;color:var(--muted);">
+          <i class="bi bi-clock me-1"></i>{{ notif.created_at|timesince }} ago
+        </span>
+        {% if notif.ntype == 'application' %}
+          <span class="kc-badge badge-primary" style="font-size:.62rem;padding:.15rem .55rem;">Application</span>
+        {% elif notif.ntype == 'message' %}
+          <span class="kc-badge" style="font-size:.62rem;padding:.15rem .55rem;background:rgba(139,92,246,.1);color:#8b5cf6;">Message</span>
+        {% elif notif.ntype == 'status' %}
+          <span class="kc-badge badge-success" style="font-size:.62rem;padding:.15rem .55rem;">Status</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Action -->
+    <div class="d-flex flex-column align-items-end gap-2 ms-auto flex-shrink-0">
+      {% if notif.link %}
+      <a href="{{ notif.link }}" class="btn btn-outline-primary btn-sm btn-pill" style="font-size:.75rem;padding:.3rem .85rem;">
+        View <i class="bi bi-arrow-right ms-1"></i>
+      </a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<!-- Empty state -->
+<div class="kc-empty kc-card p-5 kc-fade-in">
+  <div style="font-size:4rem;margin-bottom:1rem;opacity:.3;">🔔</div>
+  <div class="empty-title">No Notifications Yet</div>
+  <div class="empty-desc">You'll be notified when someone applies to your jobs, messages you, or updates your application status.</div>
+  <a href="{% url 'dashboard:home' %}" class="btn btn-primary btn-pill btn-sm mt-4">
+    <i class="bi bi-grid-1x2 me-1"></i> Go to Dashboard
+  </a>
+</div>
+{% endif %}
+
+<style>
+.notif-item-enhanced {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  transition: var(--t);
+}
+.notif-item-enhanced:last-child { border-bottom: none; }
+.notif-item-enhanced:hover { background: var(--surface2); }
+.notif-item-enhanced.unread {
+  background: var(--p-soft);
+  border-left: 3px solid var(--p);
+}
+.notif-item-enhanced.unread:hover { background: rgba(79,70,229,.1); }
+
+.notif-icon-enhanced { position: relative; flex-shrink: 0; }
+.notif-icon-circle {
+  width: 46px; height: 46px;
+  border-radius: var(--r-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.15rem;
+}
+.notif-unread-dot {
+  position: absolute;
+  top: -3px; right: -3px;
+  width: 10px; height: 10px;
+  background: var(--p);
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  animation: pulse-dot 2s infinite;
+}
+</style>
+
+{% endblock %}

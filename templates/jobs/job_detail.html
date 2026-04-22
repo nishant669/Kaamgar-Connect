@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% block title %}{{ job.title }}{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' %}{% endblock %}
+{% block content %}
+
+<div style="margin-bottom:1.25rem;">
+  <a href="{% url 'jobs:list' %}" class="btn btn-ghost btn-sm"><i class="bi bi-arrow-left me-1"></i> Back to Jobs</a>
+</div>
+
+<!-- Hero card -->
+<div class="job-detail-hero mb-4">
+  <div style="position:relative;z-index:1;">
+    <div class="d-flex align-items-start gap-3 flex-wrap">
+      <div style="width:64px;height:64px;background:rgba(255,255,255,.15);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;border:1px solid rgba(255,255,255,.2);">
+        {{ job.category_icon }}
+      </div>
+      <div class="flex-1">
+        <div class="d-flex flex-wrap gap-2 mb-2">
+          <span style="background:rgba(255,255,255,.15);color:rgba(255,255,255,.9);border:1px solid rgba(255,255,255,.25);padding:.25rem .75rem;border-radius:999px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">{{ job.get_job_type_display }}</span>
+          <span style="background:rgba(245,158,11,.25);color:#fcd34d;border:1px solid rgba(245,158,11,.35);padding:.25rem .75rem;border-radius:999px;font-size:.72rem;font-weight:700;">{{ job.get_category_display }}</span>
+          {% if job.is_featured %}<span style="background:rgba(245,158,11,.3);color:#fcd34d;border:1px solid rgba(245,158,11,.4);padding:.25rem .75rem;border-radius:999px;font-size:.72rem;font-weight:700;"><i class="bi bi-star-fill me-1"></i>Featured</span>{% endif %}
+        </div>
+        <h1 style="font-size:clamp(1.4rem,3vw,2rem);font-weight:800;color:white;margin-bottom:.35rem;">{{ job.title }}</h1>
+        <p style="color:rgba(255,255,255,.8);font-size:.95rem;margin-bottom:.75rem;">
+          by <strong>{{ job.employer.get_full_name|default:job.employer.username }}</strong> &nbsp;·&nbsp;
+          <i class="bi bi-geo-alt me-1"></i>{{ job.location }}
+        </p>
+        <div class="d-flex flex-wrap gap-3" style="font-size:.85rem;color:rgba(255,255,255,.8);">
+          <span><i class="bi bi-people me-1"></i>{{ job.openings }} opening{{ job.openings|pluralize }}</span>
+          <span><i class="bi bi-eye me-1"></i>{{ job.views }} views</span>
+          <span><i class="bi bi-clock me-1"></i>Posted {{ job.created_at|timesince }} ago</span>
+          {% if job.deadline %}<span><i class="bi bi-calendar-x me-1"></i>Deadline {{ job.deadline|date:"M d, Y" }}</span>{% endif %}
+        </div>
+      </div>
+      <div class="text-end" style="flex-shrink:0;">
+        <div style="font-size:1.75rem;font-weight:900;color:white;font-family:var(--font-display);">
+          ₹{{ job.salary_min|floatformat:0 }}{% if job.salary_max %}–{{ job.salary_max|floatformat:0 }}{% endif %}
+        </div>
+        <div style="color:rgba(255,255,255,.65);font-size:.8rem;">per month</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Left: Description + Skills -->
+  <div class="col-lg-8">
+    <div class="kc-card p-4 mb-4">
+      <h5 class="fw-700 mb-3" style="font-family:var(--font-display);">Job Description</h5>
+      <div class="lh-relaxed" style="white-space:pre-wrap;font-size:.9rem;color:var(--text-2);">{{ job.description }}</div>
+      {% if job.description_hi %}
+      <hr style="border-color:var(--border);margin:1.5rem 0;">
+      <h6 class="fw-700 mb-2">नौकरी का विवरण (Hindi)</h6>
+      <div style="white-space:pre-wrap;font-size:.9rem;color:var(--text-2);">{{ job.description_hi }}</div>
+      {% endif %}
+    </div>
+
+    {% if job.skills_list %}
+    <div class="kc-card p-4 mb-4">
+      <h5 class="fw-700 mb-3" style="font-family:var(--font-display);">Skills Required</h5>
+      <div class="d-flex flex-wrap gap-2">
+        {% for skill in job.skills_list %}
+        <span class="job-skill-tag"><i class="bi bi-check-circle me-1"></i>{{ skill }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Related jobs -->
+    {% if related_jobs %}
+    <div class="kc-card p-4">
+      <h5 class="fw-700 mb-3" style="font-family:var(--font-display);">Similar Jobs</h5>
+      <div class="d-flex flex-column gap-2">
+        {% for rj in related_jobs %}
+        <a href="{% url 'jobs:detail' rj.pk %}" class="d-flex align-items-center gap-3 p-2 rounded-3 text-decoration-none" style="color:inherit;transition:var(--t);" onmouseenter="this.style.background='var(--surface2)'" onmouseleave="this.style.background='transparent'">
+          <div style="width:38px;height:38px;background:var(--surface2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">{{ rj.category_icon }}</div>
+          <div class="flex-1 min-w-0">
+            <div class="fw-600 small text-truncate">{{ rj.title }}</div>
+            <div class="text-muted" style="font-size:.72rem;">{{ rj.location }} · ₹{{ rj.salary_min|floatformat:0 }}/mo</div>
+          </div>
+          <i class="bi bi-arrow-right text-muted"></i>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Right: Apply + Employer info -->
+  <div class="col-lg-4">
+    <!-- Apply card -->
+    <div class="kc-card p-4 mb-3">
+      {% if user.is_authenticated and user.role == 'worker' %}
+        {% if already_applied %}
+          <div class="kc-alert kc-alert-success mb-3 py-2">
+            <i class="bi bi-check-circle-fill"></i> Already applied to this job
+          </div>
+          <a href="{% url 'applications:list' %}" class="btn btn-secondary btn-pill w-100">View My Applications</a>
+        {% elif job.is_active %}
+          <h6 class="fw-700 mb-3" style="font-family:var(--font-display);">Apply for this Job</h6>
+          <form method="post" action="{% url 'applications:apply' job.pk %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label">Cover Note <span style="color:var(--muted)">(Optional)</span></label>
+              <textarea name="cover_note" class="form-control" rows="4" placeholder="Why are you a great fit for this role? Mention your experience, skills…" data-maxchars="500"></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Resume <span style="color:var(--muted)">(PDF/DOC, max 5MB)</span></label>
+              <div class="resume-upload-area kc-upload" style="padding:1.25rem;" data-max-mb="5">
+                <input type="file" name="resume" accept=".pdf,.doc,.docx">
+                <div class="upload-icon" style="font-size:1.5rem;">📄</div>
+                <div class="upload-text resume-filename fw-600 small">Upload Resume</div>
+                <div class="upload-hint" style="font-size:.72rem;">PDF, DOC, DOCX · Max 5MB</div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-pill w-100 py-3" style="font-size:.95rem;">
+              <i class="bi bi-send-fill me-1"></i> Apply Now
+            </button>
+          </form>
+        {% else %}
+          <div class="kc-alert kc-alert-danger">This job is no longer accepting applications.</div>
+        {% endif %}
+
+        <!-- Save button -->
+        <form style="margin-top:.75rem;">
+          {% csrf_token %}
+          <button type="button" class="btn btn-secondary btn-pill w-100 save-job-btn {% if is_saved %}save-btn-active{% endif %}"
+            data-url="{% url 'jobs:save' job.pk %}">
+            <i class="bi bi-bookmark-heart{% if is_saved %}-fill{% endif %}" {% if is_saved %}style="color:#f59e0b"{% endif %}></i>
+            <span class="save-text">{% if is_saved %}Saved{% else %}Save Job{% endif %}</span>
+          </button>
+        </form>
+
+      {% elif user.is_authenticated and user.role == 'employer' %}
+        {% if job.employer == user %}
+          <a href="{% url 'jobs:applicants' job.pk %}" class="btn btn-primary btn-pill w-100 mb-2" style="height:48px;">
+            <i class="bi bi-people me-1"></i> View Applicants ({{ job.applications.count }})
+          </a>
+          <a href="{% url 'jobs:edit' job.pk %}" class="btn btn-secondary btn-pill w-100 mb-2">
+            <i class="bi bi-pencil me-1"></i> Edit Job
+          </a>
+          <a href="{% url 'jobs:toggle' job.pk %}" class="btn btn-outline-danger btn-pill w-100" data-confirm="Toggle job status?">
+            {% if job.is_active %}<i class="bi bi-pause me-1"></i> Pause Job{% else %}<i class="bi bi-play me-1"></i> Activate Job{% endif %}
+          </a>
+        {% else %}
+          <p class="text-muted small text-center">You are signed in as an employer.</p>
+        {% endif %}
+      {% else %}
+        <h6 class="fw-700 mb-2" style="font-family:var(--font-display);">Interested in this role?</h6>
+        <p class="text-muted small mb-3">Login or create an account to apply.</p>
+        <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-pill w-100 mb-2">Login to Apply</a>
+        <a href="{% url 'accounts:register' %}" class="btn btn-secondary btn-pill w-100">Create Account</a>
+      {% endif %}
+    </div>
+
+    <!-- Job info card -->
+    <div class="kc-card p-4 mb-3">
+      <h6 class="fw-700 mb-3" style="font-family:var(--font-display);">Job Details</h6>
+      {% for icon, label, val in job_details %}
+      <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom:1px solid var(--border);">
+        <span class="text-muted small"><i class="bi bi-{{ icon }} me-1"></i>{{ label }}</span>
+        <span class="fw-600 small">{{ val }}</span>
+      </div>
+      {% endfor %}
+      <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom:1px solid var(--border);">
+        <span class="text-muted small"><i class="bi bi-briefcase me-1"></i>Experience</span>
+        <span class="fw-600 small">{{ job.get_experience_req_display }}</span>
+      </div>
+      <div class="d-flex justify-content-between align-items-center pt-2">
+        <span class="text-muted small"><i class="bi bi-people me-1"></i>Openings</span>
+        <span class="fw-600 small">{{ job.openings }}</span>
+      </div>
+    </div>
+
+    <!-- Employer card -->
+    <div class="kc-card p-4">
+      <h6 class="fw-700 mb-3" style="font-family:var(--font-display);">About the Employer</h6>
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="kc-avatar kc-avatar-lg">{{ job.employer.first_name|first|upper|default:job.employer.username|first|upper }}</div>
+        <div>
+          <div class="fw-700">{{ job.employer.get_full_name|default:job.employer.username }}</div>
+          <div class="text-muted small">{{ job.employer.city|default:"Bhopal, MP" }}</div>
+          <div class="text-success small fw-600"><i class="bi bi-patch-check-fill me-1"></i>Verified Employer</div>
+        </div>
+      </div>
+      {% if user.is_authenticated %}
+      <a href="{% url 'chat:start' job.employer.pk %}" class="btn btn-secondary btn-pill w-100">
+        <i class="bi bi-chat-dots me-1"></i> Message Employer
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Build job details from Django context
+const jobDetails = [
+  ['currency-rupee', 'Salary', '₹{{ job.salary_min|floatformat:0 }}–{{ job.salary_max|floatformat:0 }}/mo'],
+  ['geo-alt', 'Location', '{{ job.location }}'],
+  ['clock', 'Job Type', '{{ job.get_job_type_display }}'],
+  ['calendar', 'Posted', '{{ job.created_at|date:"M d, Y" }}'],
+];
+</script>
+{% endblock %}

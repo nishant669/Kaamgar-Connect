@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}My Applications{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' %}{% endblock %}
+{% block content %}
+<div class="kc-page-header">
+  <div>
+    <h1 class="kc-page-title">My Applications</h1>
+    <p class="kc-page-subtitle">Track all your job applications in one place</p>
+  </div>
+  <a href="{% url 'jobs:list' %}" class="btn btn-primary btn-pill"><i class="bi bi-search me-1"></i> Find More Jobs</a>
+</div>
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md"><div class="kc-stat stat-blue"><div class="kc-stat-icon"><i class="bi bi-file-earmark-text-fill"></i></div><div><div class="kc-stat-label">Total</div><div class="kc-stat-value" data-count="{{ counts.all }}">{{ counts.all }}</div></div></div></div>
+  <div class="col-6 col-md"><div class="kc-stat stat-amber"><div class="kc-stat-icon"><i class="bi bi-hourglass-split"></i></div><div><div class="kc-stat-label">Pending</div><div class="kc-stat-value" data-count="{{ counts.pending }}">{{ counts.pending }}</div></div></div></div>
+  <div class="col-6 col-md"><div class="kc-stat stat-purple"><div class="kc-stat-icon"><i class="bi bi-eye-fill"></i></div><div><div class="kc-stat-label">Reviewed</div><div class="kc-stat-value" data-count="{{ counts.reviewed }}">{{ counts.reviewed }}</div></div></div></div>
+  <div class="col-6 col-md"><div class="kc-stat stat-teal"><div class="kc-stat-icon"><i class="bi bi-bookmark-star-fill"></i></div><div><div class="kc-stat-label">Shortlisted</div><div class="kc-stat-value" data-count="{{ counts.shortlisted }}">{{ counts.shortlisted }}</div></div></div></div>
+  <div class="col-6 col-md"><div class="kc-stat stat-green"><div class="kc-stat-icon"><i class="bi bi-check-circle-fill"></i></div><div><div class="kc-stat-label">Accepted</div><div class="kc-stat-value" data-count="{{ counts.accepted }}">{{ counts.accepted }}</div></div></div></div>
+</div>
+
+<!-- Status filter tabs -->
+<div class="d-flex flex-wrap gap-2 mb-4">
+  <a href="?status=" class="btn {% if not status_filter %}btn-primary{% else %}btn-secondary{% endif %} btn-sm btn-pill">All ({{ counts.all }})</a>
+  <a href="?status=pending" class="btn {% if status_filter == 'pending' %}btn-primary{% else %}btn-secondary{% endif %} btn-sm btn-pill">⏳ Pending ({{ counts.pending }})</a>
+  <a href="?status=reviewed" class="btn {% if status_filter == 'reviewed' %}btn-primary{% else %}btn-secondary{% endif %} btn-sm btn-pill">👁 Reviewed ({{ counts.reviewed }})</a>
+  <a href="?status=shortlisted" class="btn {% if status_filter == 'shortlisted' %}btn-primary{% else %}btn-secondary{% endif %} btn-sm btn-pill">⭐ Shortlisted ({{ counts.shortlisted }})</a>
+  <a href="?status=accepted" class="btn {% if status_filter == 'accepted' %}btn-primary{% else %}btn-secondary{% endif %} btn-sm btn-pill">✅ Accepted ({{ counts.accepted }})</a>
+  <a href="?status=rejected" class="btn {% if status_filter == 'rejected' %}btn-primary{% else %}btn-secondary{% endif %} btn-sm btn-pill">❌ Rejected ({{ counts.rejected }})</a>
+</div>
+
+{% if applications %}
+<div class="d-flex flex-column gap-3">
+  {% for app in applications %}
+  <div class="kc-card p-4">
+    <div class="d-flex align-items-start gap-3 flex-wrap">
+      <!-- Job icon -->
+      <div style="width:52px;height:52px;border-radius:var(--r-md);background:var(--p-soft);border:1px solid rgba(79,70,229,.15);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">
+        {% if app.job.category == 'electrical' %}⚡{% elif app.job.category == 'plumbing' %}🔧{% elif app.job.category == 'construction' %}🏗️{% elif app.job.category == 'driving' %}🚗{% elif app.job.category == 'security' %}🛡️{% elif app.job.category == 'cooking' %}👨‍🍳{% else %}💼{% endif %}
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="d-flex align-items-start justify-content-between gap-2 flex-wrap">
+          <div>
+            <h6 class="fw-800 mb-1" style="font-family:var(--font-display);">{{ app.job.title }}</h6>
+            <p class="text-muted small mb-2">
+              <strong>{{ app.job.employer.get_full_name|default:app.job.employer.username }}</strong>
+              · 📍 {{ app.job.location }}
+            </p>
+          </div>
+          <span class="status-chip chip-{{ app.status }}">{{ app.get_status_display }}</span>
+        </div>
+        <div class="d-flex flex-wrap gap-3 mb-2" style="font-size:.8rem;color:var(--muted);">
+          <span><i class="bi bi-currency-rupee me-1"></i>₹{{ app.job.salary_min|floatformat:0 }}–{{ app.job.salary_max|floatformat:0 }}/mo</span>
+          <span><i class="bi bi-tag me-1"></i>{{ app.job.get_category_display }}</span>
+          <span><i class="bi bi-clock me-1"></i>Applied {{ app.applied_at|timesince }} ago</span>
+          {% if app.resume %}<span><i class="bi bi-file-earmark-check-fill text-success me-1"></i>Resume attached</span>{% endif %}
+        </div>
+        {% if app.cover_note %}
+        <div class="p-3 rounded-3 mb-2" style="background:var(--p-soft);border-left:3px solid var(--p);font-size:.85rem;">
+          <i class="bi bi-quote me-1" style="color:var(--p);"></i>{{ app.cover_note|truncatewords:30 }}
+        </div>
+        {% endif %}
+        <!-- Status banners -->
+        {% if app.status == 'accepted' %}
+        <div class="kc-alert kc-alert-success py-2 px-3" style="font-size:.82rem;">
+          <i class="bi bi-trophy-fill me-1"></i>🎉 Congratulations! Your application was accepted. Contact the employer to discuss next steps.
+        </div>
+        {% elif app.status == 'shortlisted' %}
+        <div class="kc-alert kc-alert-info py-2 px-3" style="font-size:.82rem;">
+          <i class="bi bi-bookmark-star-fill me-1"></i>You've been shortlisted! The employer will contact you soon.
+        </div>
+        {% elif app.status == 'rejected' %}
+        <div class="kc-alert kc-alert-danger py-2 px-3" style="font-size:.82rem;">
+          <i class="bi bi-info-circle me-1"></i>This application was not selected. Keep applying — the right job is out there!
+        </div>
+        {% endif %}
+      </div>
+      <!-- Actions -->
+      <div class="d-flex flex-column gap-2" style="flex-shrink:0;">
+        <a href="{% url 'jobs:detail' app.job.pk %}" class="btn btn-secondary btn-sm btn-pill">View Job</a>
+        <a href="{% url 'chat:start' app.job.employer.pk %}" class="btn btn-ghost btn-sm btn-pill">
+          <i class="bi bi-chat-dots me-1"></i> Message
+        </a>
+        {% if app.status == 'pending' %}
+        <a href="{% url 'applications:withdraw' app.pk %}" class="btn btn-ghost btn-sm btn-pill" style="color:var(--danger);" data-confirm="Withdraw this application?">
+          <i class="bi bi-x-circle me-1"></i> Withdraw
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="kc-empty kc-card p-5">
+  <div class="empty-icon">📭</div>
+  <div class="empty-title">{% if status_filter %}No {{ status_filter|capfirst }} Applications{% else %}No Applications Yet{% endif %}</div>
+  <div class="empty-desc">{% if status_filter %}<a href="?status=" style="color:var(--p);">Clear filter</a> to see all applications.{% else %}You haven't applied to any jobs yet. Start browsing and apply!{% endif %}</div>
+  {% if not status_filter %}<a href="{% url 'jobs:list' %}" class="btn btn-primary btn-pill mt-3">Browse Jobs</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

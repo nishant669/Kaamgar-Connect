@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block title %}Browse Jobs{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' %}{% endblock %}
+{% block content %}
+
+<div class="kc-page-header">
+  <div>
+    <h1 class="kc-page-title">Browse Jobs</h1>
+    <p class="kc-page-subtitle">{{ page_obj.paginator.count }} job{{ page_obj.paginator.count|pluralize }} available{% if category %} in <strong>{{ category|capfirst }}</strong>{% endif %}</p>
+  </div>
+  {% if user.is_authenticated and user.role == 'employer' %}
+  <a href="{% url 'jobs:post' %}" class="btn btn-primary btn-pill"><i class="bi bi-plus-lg me-1"></i> Post Job</a>
+  {% endif %}
+</div>
+
+<!-- Search & Filter bar -->
+<form method="get" class="mb-4">
+  <div class="kc-card p-3">
+    <div class="row g-2 align-items-end">
+      <div class="col-12 col-md-4">
+        <label class="form-label">Search</label>
+        <div class="kc-input-wrap">
+          <i class="bi bi-search kc-input-icon"></i>
+          <input type="text" name="search" class="form-control" placeholder="Job title, skill, keyword…" value="{{ search }}">
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <label class="form-label">Job Type</label>
+        <select name="job_type" class="form-select">
+          <option value="">All Types</option>
+          {% for val, label in job_types %}
+          <option value="{{ val }}" {% if job_type == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-md-2">
+        <label class="form-label">Location</label>
+        <div class="kc-input-wrap">
+          <i class="bi bi-geo-alt kc-input-icon"></i>
+          <input type="text" name="location" class="form-control" placeholder="City…" value="{{ location }}">
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <label class="form-label">Min Salary (₹)</label>
+        <input type="number" name="salary_min" class="form-control" placeholder="e.g. 15000" value="{{ salary_min }}">
+      </div>
+      <div class="col-6 col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary flex-1">Search</button>
+        {% if search or category or job_type or location or salary_min %}
+        <a href="{% url 'jobs:list' %}" class="btn btn-secondary" title="Clear filters"><i class="bi bi-x-lg"></i></a>
+        {% endif %}
+      </div>
+    </div>
+    <input type="hidden" name="category" value="{{ category }}">
+  </div>
+</form>
+
+{% if page_obj %}
+<div class="row g-4">
+  {% for job in page_obj %}
+  <div class="col-md-6 col-xl-4 kc-reveal">
+    <a href="{% url 'jobs:detail' job.pk %}" class="kc-job-card text-decoration-none" style="display:flex;flex-direction:column;">
+      <!-- Top -->
+      <div class="d-flex align-items-start gap-3 mb-3">
+        <div class="kc-job-icon">
+          {% if job.category == 'construction' %}🏗️{% elif job.category == 'electrical' %}⚡{% elif job.category == 'plumbing' %}🔧{% elif job.category == 'carpentry' %}🪚{% elif job.category == 'painting' %}🎨{% elif job.category == 'driving' %}🚗{% elif job.category == 'cooking' %}👨‍🍳{% elif job.category == 'cleaning' %}🧹{% elif job.category == 'security' %}🛡️{% elif job.category == 'welding' %}⚒️{% else %}💼{% endif %}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="kc-job-title">{{ job.title }}</div>
+          <div class="kc-job-company">{{ job.employer.get_full_name|default:job.employer.username }}</div>
+        </div>
+        <span class="kc-badge badge-primary flex-shrink-0">{{ job.get_job_type_display }}</span>
+      </div>
+
+      <!-- Meta -->
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="kc-badge badge-gray"><i class="bi bi-geo-alt me-1"></i>{{ job.location }}</span>
+        <span class="kc-badge badge-gray"><i class="bi bi-people me-1"></i>{{ job.openings }} opening{{ job.openings|pluralize }}</span>
+        {% if job.deadline %}<span class="kc-badge badge-warning"><i class="bi bi-clock me-1"></i>Due {{ job.deadline|date:"M d" }}</span>{% endif %}
+      </div>
+
+      <!-- Description -->
+      <p class="text-muted small lh-relaxed mb-3 flex-1">{{ job.description|truncatewords:18 }}</p>
+
+      <!-- Footer -->
+      <div class="d-flex align-items-center justify-content-between pt-3" style="border-top:1px solid var(--border);">
+        <div class="kc-salary">₹{{ job.salary_min|floatformat:0 }}{% if job.salary_max %}–{{ job.salary_max|floatformat:0 }}{% endif %}<span class="text-muted fw-400" style="font-size:.78rem;">/mo</span></div>
+        <span class="text-muted" style="font-size:.72rem;">{{ job.created_at|timesince }} ago</span>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<div class="kc-pagination mt-4">
+  {% if page_obj.has_previous %}
+  <a href="?page={{ page_obj.previous_page_number }}&search={{ search }}&category={{ category }}&job_type={{ job_type }}&location={{ location }}&salary_min={{ salary_min }}" class="kc-page-btn"><i class="bi bi-chevron-left"></i></a>
+  {% endif %}
+  {% for num in page_obj.paginator.page_range %}
+    {% if num == page_obj.number %}
+      <span class="kc-page-btn active">{{ num }}</span>
+    {% elif num > page_obj.number|add:-3 and num < page_obj.number|add:3 %}
+      <a href="?page={{ num }}&search={{ search }}&category={{ category }}&job_type={{ job_type }}&location={{ location }}&salary_min={{ salary_min }}" class="kc-page-btn">{{ num }}</a>
+    {% endif %}
+  {% endfor %}
+  {% if page_obj.has_next %}
+  <a href="?page={{ page_obj.next_page_number }}&search={{ search }}&category={{ category }}&job_type={{ job_type }}&location={{ location }}&salary_min={{ salary_min }}" class="kc-page-btn"><i class="bi bi-chevron-right"></i></a>
+  {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="kc-empty kc-card p-5">
+  <div class="empty-icon">🔍</div>
+  <div class="empty-title">No jobs found</div>
+  <div class="empty-desc">Try adjusting your search filters. New jobs are posted every day!</div>
+  <a href="{% url 'jobs:list' %}" class="btn btn-primary btn-pill mt-3">Clear Filters</a>
+</div>
+{% endif %}
+{% endblock %}

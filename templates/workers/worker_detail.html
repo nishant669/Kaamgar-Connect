@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile_user.get_full_name|default:profile_user.username }} – Worker Profile{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' %}{% endblock %}
+{% block content %}
+
+<div class="mb-3">
+  <a href="{% url 'workers:list' %}" class="btn btn-ghost btn-sm">
+    <i class="bi bi-arrow-left me-1"></i> Back to Workers
+  </a>
+</div>
+
+<div style="max-width:900px;">
+  <!-- Profile header -->
+  <div class="mb-4" style="border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--shadow-md);">
+    <div class="kc-profile-cover"></div>
+    <div class="kc-profile-body">
+      <div class="kc-profile-avatar-wrap">
+        <div class="kc-profile-avatar">
+          {% if profile_user.profile_photo %}<img src="{{ profile_user.profile_photo.url }}" alt="">
+          {% else %}{{ profile_user.first_name|first|upper|default:profile_user.username|first|upper }}{% endif %}
+        </div>
+      </div>
+      <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+        <div>
+          <h2 class="fw-800 mb-1" style="font-family:var(--font-display);font-size:1.5rem;">
+            {{ profile_user.get_full_name|default:profile_user.username }}
+          </h2>
+          <p class="text-muted mb-2">
+            <strong style="color:var(--p);">{{ wp.get_skills_display }}</strong>
+            {% if profile_user.city %} · 📍 {{ profile_user.city }}{% endif %}
+          </p>
+          <div class="d-flex flex-wrap gap-2 align-items-center">
+            {% if wp.availability %}
+              <span class="kc-badge badge-success"><i class="bi bi-circle-fill me-1" style="font-size:.4rem;"></i>Available for Hire</span>
+            {% else %}
+              <span class="kc-badge badge-danger">Currently Unavailable</span>
+            {% endif %}
+            {% if wp.aadhar_verified %}
+              <span class="kc-badge badge-verified"><i class="bi bi-patch-check-fill me-1"></i>ID Verified</span>
+            {% endif %}
+            <span class="text-muted small fw-600">⭐ {{ wp.rating }}/5.0 · {{ wp.total_jobs }} jobs completed</span>
+          </div>
+        </div>
+        {% if user.is_authenticated and user != profile_user %}
+        <div class="d-flex gap-2">
+          <a href="{% url 'chat:start' profile_user.pk %}" class="btn btn-primary btn-pill">
+            <i class="bi bi-chat-dots me-1"></i> Message & Hire
+          </a>
+          {% if profile_user.phone %}
+          <a href="tel:{{ profile_user.phone }}" class="btn btn-secondary btn-pill">
+            <i class="bi bi-telephone me-1"></i> Call
+          </a>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+      {% if profile_user.bio %}
+      <p class="text-muted mt-3 lh-relaxed" style="max-width:620px;font-size:.9rem;">{{ profile_user.bio }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left column -->
+    <div class="col-lg-7">
+      <!-- Worker details card -->
+      <div class="kc-card p-4 mb-4">
+        <h6 class="fw-700 mb-4" style="font-family:var(--font-display);">Worker Details</h6>
+        <div class="row g-3">
+          {% for label, val, icon in worker_details %}
+          <div class="col-6">
+            <div class="d-flex align-items-center gap-2 p-3 rounded-3" style="background:var(--surface2);">
+              <i class="bi bi-{{ icon }}" style="color:var(--p);font-size:1.1rem;width:20px;text-align:center;"></i>
+              <div>
+                <div class="text-muted" style="font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700;">{{ label }}</div>
+                <div class="fw-700 small">{{ val }}</div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Skills card -->
+      {% if wp.extra_skills_list %}
+      <div class="kc-card p-4 mb-4">
+        <h6 class="fw-700 mb-3" style="font-family:var(--font-display);">Additional Skills</h6>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="job-skill-tag"><i class="bi bi-star-fill me-1" style="color:var(--accent);"></i>{{ wp.get_skills_display }}</span>
+          {% for skill in wp.extra_skills_list %}
+          <span class="job-skill-tag">{{ skill }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Reviews -->
+      <div class="kc-card p-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+          <h6 class="fw-700 mb-0" style="font-family:var(--font-display);">Reviews ({{ reviews|length }})</h6>
+          <!-- Rating overview -->
+          <div class="d-flex align-items-center gap-2">
+            <div style="font-size:1.5rem;font-weight:900;font-family:var(--font-display);color:var(--accent);">{{ wp.rating }}</div>
+            <div>
+              <div style="color:var(--accent);letter-spacing:1px;">
+                {% for i in "12345" %}{% if forloop.counter <= wp.rating|floatformat:0|add:0 %}★{% else %}☆{% endif %}{% endfor %}
+              </div>
+              <div class="text-muted" style="font-size:.7rem;">{{ reviews|length }} review{{ reviews|length|pluralize }}</div>
+            </div>
+          </div>
+        </div>
+        {% if reviews %}
+          {% for review in reviews %}
+          <div class="mb-4 pb-4" style="border-bottom:1px solid var(--border);">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <div class="kc-avatar kc-avatar-xs">{{ review.reviewer.first_name|first|upper|default:review.reviewer.username|first|upper }}</div>
+              <div class="flex-1">
+                <div class="fw-700 small">{{ review.reviewer.get_full_name|default:review.reviewer.username }}</div>
+                <div class="text-muted" style="font-size:.7rem;">{{ review.created_at|date:"M d, Y" }}</div>
+              </div>
+              <div style="color:var(--accent);">{% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% endif %}{% endfor %}</div>
+            </div>
+            {% if review.comment %}
+            <p class="text-muted small lh-relaxed mb-0">{{ review.comment }}</p>
+            {% endif %}
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="text-center text-muted py-3">
+            <i class="bi bi-star fs-2 d-block mb-2 opacity-25"></i>
+            <div class="small">No reviews yet. Be the first to leave a review!</div>
+          </div>
+        {% endif %}
+
+        <!-- Leave review form -->
+        {% if user.is_authenticated and user != profile_user and user.role == 'employer' %}
+        <div class="mt-4 pt-3" style="border-top:2px dashed var(--border);">
+          <h6 class="fw-700 mb-3" style="font-family:var(--font-display);font-size:.9rem;">Leave a Review</h6>
+          <form method="post" action="{% url 'reviews:leave' profile_user.pk %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label">Your Rating</label>
+              <div class="star-picker d-flex gap-2 mb-2" style="font-size:1.6rem;">
+                <input type="hidden" name="rating" value="5">
+                <label class="star" style="cursor:pointer;color:var(--accent);" title="1 star">★</label>
+                <label class="star" style="cursor:pointer;color:var(--accent);" title="2 stars">★</label>
+                <label class="star" style="cursor:pointer;color:var(--accent);" title="3 stars">★</label>
+                <label class="star" style="cursor:pointer;color:var(--accent);" title="4 stars">★</label>
+                <label class="star" style="cursor:pointer;color:var(--accent);" title="5 stars">★</label>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Comment (Optional)</label>
+              <textarea name="comment" class="form-control" rows="3"
+                placeholder="Share your experience working with this professional…" data-maxchars="300"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-pill">
+              <i class="bi bi-star me-1"></i> Submit Review
+            </button>
+          </form>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div class="col-lg-5 d-flex flex-column gap-3">
+      <!-- Contact card -->
+      {% if user.is_authenticated and user != profile_user %}
+      <div class="kc-card p-4">
+        <h6 class="fw-700 mb-3" style="font-family:var(--font-display);">Contact Worker</h6>
+        <div class="d-flex flex-column gap-2">
+          <a href="{% url 'chat:start' profile_user.pk %}" class="btn btn-primary btn-pill w-100 py-3">
+            <i class="bi bi-chat-dots me-1"></i> Start Conversation
+          </a>
+          {% if profile_user.phone %}
+          <a href="tel:{{ profile_user.phone }}" class="btn btn-secondary btn-pill w-100">
+            <i class="bi bi-telephone me-1"></i> {{ profile_user.phone }}
+          </a>
+          {% endif %}
+          <a href="mailto:{{ profile_user.email }}" class="btn btn-ghost btn-pill w-100">
+            <i class="bi bi-envelope me-1"></i> Send Email
+          </a>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Rating overview card -->
+      <div class="kc-card p-4">
+        <h6 class="fw-700 mb-3" style="font-family:var(--font-display);">Performance</h6>
+        <div class="text-center mb-3">
+          <div style="font-size:3.5rem;font-weight:900;font-family:var(--font-display);color:var(--accent);line-height:1;">{{ wp.rating }}</div>
+          <div style="color:var(--accent);font-size:1.3rem;letter-spacing:3px;">★★★★★</div>
+          <div class="text-muted small mt-1">Based on {{ reviews|length }} review{{ reviews|length|pluralize }}</div>
+        </div>
+        <div class="kc-progress">
+          <div class="kc-progress-bar amber" data-pct="{{ wp.rating|floatformat:0 }}0" style="width:0%;"></div>
+        </div>
+        <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid var(--border);">
+          <div class="text-center">
+            <div class="fw-800" style="font-family:var(--font-display);">{{ wp.total_jobs }}</div>
+            <div class="text-muted" style="font-size:.7rem;">Jobs Done</div>
+          </div>
+          <div class="text-center">
+            <div class="fw-800" style="font-family:var(--font-display);">{{ wp.experience_years }}</div>
+            <div class="text-muted" style="font-size:.7rem;">Years Exp.</div>
+          </div>
+          <div class="text-center">
+            <div class="fw-800" style="font-family:var(--font-display);">₹{{ wp.daily_rate }}</div>
+            <div class="text-muted" style="font-size:.7rem;">Per Day</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location card -->
+      {% if wp.address or profile_user.city %}
+      <div class="kc-card p-4">
+        <h6 class="fw-700 mb-2" style="font-family:var(--font-display);">Location</h6>
+        <p class="text-muted small mb-0">
+          <i class="bi bi-geo-alt me-1"></i>
+          {{ wp.address|default:profile_user.city|default:"Location not specified" }}
+        </p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

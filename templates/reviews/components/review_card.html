@@ -1,0 +1,188 @@
+<!-- Review Card Component -->
+{% load static %}
+
+<div class="review-card card mb-3" data-review-id="{{ review.id }}">
+  <!-- Reviewer Info -->
+  <div class="review-header d-flex justify-content-between align-items-start mb-2">
+    <div class="d-flex align-items-center gap-2">
+      <div class="reviewer-avatar">
+        {% if review.reviewer.profile_photo %}
+          <img src="{{ review.reviewer.profile_photo.url }}" alt="{{ review.reviewer.username }}">
+        {% else %}
+          <div class="avatar-placeholder">{{ review.reviewer.first_name|first|upper }}</div>
+        {% endif %}
+      </div>
+      <div>
+        <h6 class="mb-0">{{ review.reviewer.get_full_name|default:review.reviewer.username }}</h6>
+        <small class="text-muted">
+          {% if review.is_verified %}
+            <i class="bi bi-check-circle-fill" style="color: var(--accent);"></i> Verified Purchase
+          {% endif %}
+          <span class="ms-2">{{ review.created_at|timesince }} ago</span>
+        </small>
+      </div>
+    </div>
+    {% if request.user == review.reviewee %}
+    <div class="dropdown">
+      <button class="btn btn-sm btn-ghost" data-bs-toggle="dropdown">
+        <i class="bi bi-three-dots"></i>
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="#">Edit</a></li>
+        <li><a class="dropdown-item text-danger" href="#">Delete</a></li>
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Overall Rating -->
+  <div class="review-rating mb-3">
+    <div class="d-flex align-items-center gap-3 mb-2">
+      <div>
+        <div class="stars">
+          {% for i in "12345" %}
+            {% if forloop.counter <= review.rating %}
+              <span class="star" style="color: var(--warning);">★</span>
+            {% else %}
+              <span class="star empty">★</span>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <small class="text-muted">{{ review.get_rating_display }}</small>
+      </div>
+      <h6 class="mb-0">{{ review.title }}</h6>
+    </div>
+  </div>
+
+  <!-- Dimension Ratings -->
+  <div class="review-dimensions mb-3">
+    <div class="row g-2 text-center">
+      <div class="col-6 col-md-3">
+        <small class="text-muted">Quality</small>
+        <div class="dimension-rating">
+          {% for i in "12345" %}
+            {% if forloop.counter <= review.quality_rating %}
+              <i class="bi bi-star-fill" style="color: var(--warning);"></i>
+            {% else %}
+              <i class="bi bi-star" style="color: var(--text-muted);"></i>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <small class="text-muted">Punctuality</small>
+        <div class="dimension-rating">
+          {% for i in "12345" %}
+            {% if forloop.counter <= review.punctuality %}
+              <i class="bi bi-star-fill" style="color: var(--warning);"></i>
+            {% else %}
+              <i class="bi bi-star" style="color: var(--text-muted);"></i>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <small class="text-muted">Communication</small>
+        <div class="dimension-rating">
+          {% for i in "12345" %}
+            {% if forloop.counter <= review.communication %}
+              <i class="bi bi-star-fill" style="color: var(--warning);"></i>
+            {% else %}
+              <i class="bi bi-star" style="color: var(--text-muted);"></i>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <small class="text-muted">Professionalism</small>
+        <div class="dimension-rating">
+          {% for i in "12345" %}
+            {% if forloop.counter <= review.professionalism %}
+              <i class="bi bi-star-fill" style="color: var(--warning);"></i>
+            {% else %}
+              <i class="bi bi-star" style="color: var(--text-muted);"></i>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Review Comment -->
+  <p class="review-comment mb-3">{{ review.comment }}</p>
+
+  <!-- Review Footer -->
+  <div class="review-footer d-flex justify-content-between align-items-center pt-2 border-top">
+    <div class="d-flex gap-2">
+      <button class="btn btn-sm btn-ghost" onclick="markHelpful({{ review.id }})">
+        <i class="bi bi-hand-thumbs-up"></i> Helpful ({{ review.helpful_count }})
+      </button>
+    </div>
+    {% if request.user == review.reviewee and not review.reply %}
+    <button class="btn btn-sm btn-outline-primary" data-reply-to="{{ review.id }}">
+      <i class="bi bi-reply"></i> Reply
+    </button>
+    {% endif %}
+  </div>
+
+  <!-- Reply (if exists) -->
+  {% if review.reply %}
+  <div class="review-reply mt-3 p-3 rounded-lg" style="background: var(--bg-tertiary, #f5f5f5);">
+    <h6 class="mb-2">
+      <i class="bi bi-reply-fill"></i> Response from {{ review.reply.author.get_full_name|default:review.reply.author.username }}
+    </h6>
+    <p class="mb-0">{{ review.reply.message }}</p>
+    <small class="text-muted">{{ review.reply.created_at|timesince }} ago</small>
+  </div>
+  {% elif request.user == review.reviewee %}
+  <!-- Reply Form -->
+  <div class="review-reply-form mt-3" data-reply-form="{{ review.id }}" style="display: none;">
+    <form method="post" action="{% url 'reviews:reply' review.id %}">
+      {% csrf_token %}
+      <div class="form-group mb-2">
+        <textarea class="form-control" name="message" rows="3" placeholder="Write your reply..." required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm">Post Reply</button>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="this.closest('.review-reply-form').style.display='none'">Cancel</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+  .reviewer-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--bg-tertiary);
+  }
+
+  .reviewer-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  .dimension-rating {
+    font-size: 0.8rem;
+  }
+
+  .review-comment {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+</style>

@@ -1,0 +1,122 @@
+<!-- Job Card with Distance Display -->
+{% load static %}
+
+<div class="job-card card" data-latitude="{{ job.latitude }}" data-longitude="{{ job.longitude }}">
+  <!-- Top Bar with Save Button -->
+  <div class="job-header">
+    <div class="flex-grow-1">
+      <h5 class="job-title">{{ job.title }}</h5>
+      <p class="job-company">
+        <i class="bi bi-building"></i> {{ job.employer.employer_profile.company_name|default:job.employer.username }}
+      </p>
+    </div>
+    <button class="save-job-btn" data-job-id="{{ job.id }}" title="Save job">
+      <i class="bi bi-bookmark-heart"></i>
+    </button>
+  </div>
+
+  <!-- Job Metadata Row -->
+  <div class="job-meta">
+    <span class="job-meta-item">
+      <i class="bi bi-geo-alt"></i> 
+      {% if job.distance_km %}
+        <strong>{{ job.distance_km }} km away</strong>
+      {% else %}
+        {{ job.location }}
+      {% endif %}
+    </span>
+    
+    <span class="job-meta-item">
+      <i class="bi bi-briefcase"></i> {{ job.get_job_type_display }}
+    </span>
+    
+    <span class="job-meta-item">
+      <i class="bi bi-graph-up"></i> {{ job.get_experience_req_display }}
+    </span>
+    
+    {% if job.deadline %}
+    <span class="job-meta-item">
+      <i class="bi bi-calendar-event"></i> 
+      <span data-bs-toggle="tooltip" title="{{ job.deadline }}">
+        {% now "d" as current_day %}
+        {% if job.deadline|add:"-1 day" < now %}
+          Urgent
+        {% else %}
+          <span class="badge bg-info">{{ job.deadline|timeuntil }}</span>
+        {% endif %}
+      </span>
+    </span>
+    {% endif %}
+  </div>
+
+  <!-- Salary -->
+  <div class="job-salary">
+    ₹{{ job.salary_min|floatformat:0 }} - ₹{{ job.salary_max|floatformat:0 }} {{ job.get_job_type_display|lower }}
+  </div>
+
+  <!-- Description -->
+  <p class="job-description">{{ job.description|truncatewords:30 }}</p>
+
+  <!-- Skills Tags -->
+  {% if job.skills_list %}
+  <div class="job-tags mb-3">
+    {% for skill in job.skills_list|slice:":3" %}
+      <span class="job-tag">{{ skill }}</span>
+    {% endfor %}
+    {% if job.skills_list|length > 3 %}
+      <span class="job-tag">+{{ job.skills_list|length|add:"-3" }} more</span>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Footer with Apply Button -->
+  <div class="job-footer">
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge bg-primary">{{ job.openings }} opening{{ job.openings|pluralize }}</span>
+    </div>
+    <a href="{% url 'jobs:detail' job.id %}" class="btn btn-primary btn-sm">
+      <i class="bi bi-arrow-right"></i> View Details
+    </a>
+  </div>
+</div>
+
+<style>
+  .job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .job-title {
+    margin: 0;
+    color: var(--text-primary);
+    font-weight: 700;
+  }
+
+  .job-company {
+    margin: 0.25rem 0 0 0;
+    color: var(--text-tertiary);
+    font-size: 0.9rem;
+  }
+
+  .save-job-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.3rem;
+    transition: all var(--transition-fast);
+    padding: 0.25rem;
+  }
+
+  .save-job-btn:hover {
+    color: var(--danger);
+    transform: scale(1.2);
+  }
+
+  .save-job-btn.saved {
+    color: var(--danger);
+  }
+</style>

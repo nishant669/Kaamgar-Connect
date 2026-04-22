@@ -1,0 +1,530 @@
+{% extends 'base.html' %}
+{% block title %}Verify Your Email{% endblock %}
+
+{% block full_content %}
+<div class="kc-otp-bg">
+
+  <!-- Left panel – decorative -->
+  <div class="kc-otp-left d-none d-lg-flex">
+    <div class="otp-deco-circles">
+      <div class="otp-circle c1"></div>
+      <div class="otp-circle c2"></div>
+      <div class="otp-circle c3"></div>
+    </div>
+    <div class="otp-left-content">
+      <div class="otp-shield-wrap kc-float">
+        <div class="otp-shield">
+          <i class="bi bi-shield-lock-fill"></i>
+        </div>
+        <div class="otp-shield-ring r1"></div>
+        <div class="otp-shield-ring r2"></div>
+        <div class="otp-shield-ring r3"></div>
+      </div>
+      <h2 class="otp-left-title">Email Verification</h2>
+      <p class="otp-left-sub">We protect your account with a one-time passcode sent to your email. This ensures only you can access your account.</p>
+      <div class="otp-trust-items">
+        <div class="otp-trust-item">
+          <div class="otp-trust-icon"><i class="bi bi-check-circle-fill"></i></div>
+          <span>256-bit encryption</span>
+        </div>
+        <div class="otp-trust-item">
+          <div class="otp-trust-icon"><i class="bi bi-check-circle-fill"></i></div>
+          <span>Code expires in 10 minutes</span>
+        </div>
+        <div class="otp-trust-item">
+          <div class="otp-trust-icon"><i class="bi bi-check-circle-fill"></i></div>
+          <span>Never share your OTP</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right panel – form -->
+  <div class="kc-otp-right">
+    <div class="kc-otp-card kc-fade-in">
+
+      <!-- Brand -->
+      <a href="{% url 'accounts:landing' %}" class="otp-brand mb-4">
+        <div class="brand-icon" style="width:36px;height:36px;font-size:1rem;">K</div>
+        <span style="font-family:var(--font-display);font-weight:700;color:var(--text);">Kaamgar Connect</span>
+      </a>
+
+      <!-- Steps indicator -->
+      <div class="otp-steps mb-4">
+        <div class="otp-step done">
+          <div class="otp-step-dot"><i class="bi bi-check-lg"></i></div>
+          <span>Register</span>
+        </div>
+        <div class="otp-step-line done"></div>
+        <div class="otp-step active">
+          <div class="otp-step-dot"><span>2</span></div>
+          <span>Verify</span>
+        </div>
+        <div class="otp-step-line"></div>
+        <div class="otp-step">
+          <div class="otp-step-dot"><span>3</span></div>
+          <span>Explore</span>
+        </div>
+      </div>
+
+      <!-- Header -->
+      <div class="otp-envelope-wrap mb-3">
+        <div class="otp-envelope">
+          <i class="bi bi-envelope-open-fill"></i>
+          <div class="otp-envelope-badge"><i class="bi bi-check-lg"></i></div>
+        </div>
+      </div>
+      <h1 class="kc-auth-title mb-1">Check your email</h1>
+      <p class="kc-auth-subtitle mb-4">
+        We've sent a 6-digit verification code to
+        {% if email %}
+          <strong style="color:var(--p);">{{ email }}</strong>
+        {% else %}
+          your registered email address
+        {% endif %}
+      </p>
+
+      <!-- Error banner (Django messages) -->
+      {% if messages %}
+        {% for message in messages %}
+          {% if message.tags == 'error' or message.tags == 'warning' %}
+          <div class="kc-alert kc-alert-danger mb-3 kc-fade-in" id="otpErrorBanner">
+            <i class="bi bi-x-circle-fill" style="flex-shrink:0;"></i>
+            <span>{{ message }}</span>
+          </div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+
+      <!-- OTP Form -->
+      <form method="post" class="kc-otp-form" id="otpForm" novalidate>
+        {% csrf_token %}
+
+        <label class="form-label text-center w-100 mb-3">Enter 6-digit OTP</label>
+
+        <!-- OTP Grid -->
+        <div class="kc-otp-grid mb-2" id="otpGrid">
+          <input type="text" class="kc-otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" aria-label="OTP digit 1">
+          <input type="text" class="kc-otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="OTP digit 2">
+          <input type="text" class="kc-otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="OTP digit 3">
+          <input type="text" class="kc-otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="OTP digit 4">
+          <input type="text" class="kc-otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="OTP digit 5">
+          <input type="text" class="kc-otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="OTP digit 6">
+        </div>
+
+        <!-- Progress dots -->
+        <div class="otp-progress mb-4">
+          <div class="otp-prog-dot" id="pd0"></div>
+          <div class="otp-prog-dot" id="pd1"></div>
+          <div class="otp-prog-dot" id="pd2"></div>
+          <div class="otp-prog-dot" id="pd3"></div>
+          <div class="otp-prog-dot" id="pd4"></div>
+          <div class="otp-prog-dot" id="pd5"></div>
+        </div>
+
+        <input type="hidden" name="otp" id="otp-hidden">
+
+        <!-- Submit button -->
+        <button type="submit" class="btn btn-primary btn-pill w-100 py-3 mb-3" id="otpSubmitBtn" style="font-size:.95rem;" disabled>
+          <span class="submit-text"><i class="bi bi-shield-check me-2"></i>Verify & Continue</span>
+          <span class="submit-loading d-none">
+            <span class="kc-spinner" style="width:18px;height:18px;border-width:2px;display:inline-block;vertical-align:middle;border-top-color:#fff;border-color:rgba(255,255,255,.3);margin-right:8px;"></span>Verifying…
+          </span>
+        </button>
+      </form>
+
+      <!-- Resend section -->
+      <div class="otp-resend-wrap text-center">
+        <p class="text-muted small mb-2">Didn't receive the code?</p>
+        <div id="otpCountdown" class="otp-countdown">
+          Resend in <span id="countdownSec" class="fw-700" style="color:var(--p);">60</span>s
+        </div>
+        <a href="{% url 'accounts:register' %}" class="btn btn-ghost btn-sm btn-pill d-none" id="resendBtn">
+          <i class="bi bi-arrow-clockwise me-1"></i> Resend OTP
+        </a>
+      </div>
+
+      <!-- Back link -->
+      <div class="text-center mt-3">
+        <a href="{% url 'accounts:login' %}" class="small text-muted" style="font-weight:500;">
+          <i class="bi bi-arrow-left me-1"></i> Back to Login
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ── OTP page layout ───────────────────────────── */
+.kc-otp-bg {
+  display: flex;
+  min-height: calc(100vh - var(--nav-h));
+}
+
+/* Left decorative panel */
+.kc-otp-left {
+  width: 45%;
+  max-width: 520px;
+  background: linear-gradient(145deg, #0d1b3e 0%, #1e1b4b 40%, #312e81 70%, #4338ca 100%);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 3rem;
+}
+.otp-deco-circles { position: absolute; inset: 0; pointer-events: none; }
+.otp-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,.04);
+}
+.otp-circle.c1 { width: 400px; height: 400px; top: -150px; right: -150px; }
+.otp-circle.c2 { width: 280px; height: 280px; bottom: -100px; left: -80px; }
+.otp-circle.c3 { width: 180px; height: 180px; top: 40%; left: 60%; background: rgba(245,158,11,.06); }
+
+.otp-left-content { position: relative; z-index: 1; text-align: center; color: #fff; }
+
+/* Animated shield */
+.otp-shield-wrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.otp-shield {
+  width: 80px; height: 80px;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: #fff;
+  box-shadow: 0 8px 32px rgba(79,70,229,.5);
+  position: relative;
+  z-index: 2;
+}
+.otp-shield-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,.15);
+  animation: ripple-ring 3s ease-out infinite;
+}
+.otp-shield-ring.r1 { width: 96px; height: 96px; animation-delay: 0s; }
+.otp-shield-ring.r2 { width: 112px; height: 112px; animation-delay: 1s; }
+.otp-shield-ring.r3 { width: 128px; height: 128px; animation-delay: 2s; }
+@keyframes ripple-ring {
+  0%   { opacity: .8; transform: scale(.8); }
+  100% { opacity: 0; transform: scale(1.1); }
+}
+
+.otp-left-title {
+  font-size: 1.7rem;
+  font-weight: 800;
+  margin-bottom: .75rem;
+  font-family: var(--font-display);
+  color: #fff;
+}
+.otp-left-sub {
+  font-size: .92rem;
+  color: rgba(255,255,255,.7);
+  line-height: 1.7;
+  margin-bottom: 2rem;
+  max-width: 340px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.otp-trust-items { display: flex; flex-direction: column; gap: .75rem; align-items: flex-start; max-width: 280px; margin: 0 auto; }
+.otp-trust-item {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  font-size: .85rem;
+  color: rgba(255,255,255,.8);
+  font-weight: 500;
+}
+.otp-trust-icon {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: rgba(34,197,94,.2);
+  border: 1px solid rgba(34,197,94,.35);
+  display: flex; align-items: center; justify-content: center;
+  color: #4ade80;
+  font-size: .85rem;
+  flex-shrink: 0;
+}
+
+/* Right form panel */
+.kc-otp-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: var(--bg);
+}
+.kc-otp-card {
+  width: 100%;
+  max-width: 460px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-2xl);
+  padding: 2.75rem;
+  box-shadow: var(--shadow-xl);
+}
+.otp-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  justify-content: center;
+}
+
+/* Step indicators */
+.otp-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+.otp-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--muted-light);
+  font-family: var(--font-display);
+}
+.otp-step.active { color: var(--p); }
+.otp-step.done { color: var(--success); }
+.otp-step-dot {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .8rem;
+  font-weight: 800;
+  border: 2px solid var(--border);
+  background: var(--surface2);
+  color: var(--muted);
+  transition: var(--t);
+}
+.otp-step.active .otp-step-dot {
+  border-color: var(--p);
+  background: var(--p-soft);
+  color: var(--p);
+}
+.otp-step.done .otp-step-dot {
+  border-color: var(--success);
+  background: rgba(5,150,105,.1);
+  color: var(--success);
+}
+.otp-step-line {
+  width: 50px;
+  height: 2px;
+  background: var(--border);
+  margin-bottom: 1.2rem;
+}
+.otp-step-line.done { background: var(--success); }
+
+/* Envelope animation */
+.otp-envelope-wrap { display: flex; justify-content: center; }
+.otp-envelope {
+  position: relative;
+  width: 72px; height: 72px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--p), var(--p-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: #fff;
+  box-shadow: var(--shadow-primary);
+  animation: envelope-pop .6s var(--ease-spring) both;
+}
+@keyframes envelope-pop {
+  from { opacity: 0; transform: scale(.5) rotate(-10deg); }
+  to   { opacity: 1; transform: none; }
+}
+.otp-envelope-badge {
+  position: absolute;
+  top: -6px; right: -6px;
+  width: 24px; height: 24px;
+  background: var(--success);
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-size: .65rem;
+}
+
+/* OTP progress dots */
+.otp-progress {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+.otp-prog-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--surface3);
+  border: 1.5px solid var(--border);
+  transition: all .25s var(--ease-spring);
+}
+.otp-prog-dot.filled {
+  background: var(--p);
+  border-color: var(--p);
+  transform: scale(1.2);
+}
+.otp-prog-dot.all-filled {
+  background: var(--success);
+  border-color: var(--success);
+  transform: scale(1.2);
+}
+
+/* OTP shake on error */
+@keyframes otp-shake {
+  0%,100% { transform: translateX(0); }
+  20%      { transform: translateX(-8px); }
+  40%      { transform: translateX(8px); }
+  60%      { transform: translateX(-6px); }
+  80%      { transform: translateX(6px); }
+}
+.kc-otp-grid.shake { animation: otp-shake .45s var(--ease); }
+
+/* Resend/countdown */
+.otp-countdown {
+  font-size: .85rem;
+  color: var(--muted);
+  padding: .35rem .85rem;
+  border-radius: var(--r-pill);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  display: inline-block;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  .kc-otp-bg { justify-content: center; background: var(--bg); }
+  .kc-otp-card { padding: 2rem 1.5rem; }
+}
+@media (max-width: 480px) {
+  .kc-otp-card { border-radius: var(--r-xl); padding: 1.75rem 1.25rem; }
+  .kc-otp-input { height: 50px; font-size: 1.25rem; }
+}
+</style>
+
+<script>
+(function () {
+  'use strict';
+
+  const inputs   = [...document.querySelectorAll('.kc-otp-input')];
+  const hidden   = document.getElementById('otp-hidden');
+  const submitBtn = document.getElementById('otpSubmitBtn');
+  const form     = document.getElementById('otpForm');
+  const grid     = document.getElementById('otpGrid');
+
+  // Auto-focus first input
+  if (inputs[0]) inputs[0].focus();
+
+  // Update hidden + dots
+  function updateState() {
+    const vals = inputs.map(i => i.value);
+    if (hidden) hidden.value = vals.join('');
+    const filled = vals.filter(v => v).length;
+
+    // Update progress dots
+    vals.forEach((v, idx) => {
+      const dot = document.getElementById('pd' + idx);
+      if (!dot) return;
+      dot.classList.remove('filled','all-filled');
+      if (v) dot.classList.add(filled === 6 ? 'all-filled' : 'filled');
+    });
+
+    // Enable/disable button
+    const allFilled = filled === 6;
+    if (submitBtn) {
+      submitBtn.disabled = !allFilled;
+      submitBtn.style.opacity = allFilled ? '1' : '.55';
+    }
+  }
+
+  inputs.forEach((inp, i) => {
+    inp.addEventListener('input', e => {
+      inp.value = inp.value.replace(/\D/g, '').slice(0, 1);
+      updateState();
+      if (inp.value && inputs[i + 1]) inputs[i + 1].focus();
+    });
+
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !inp.value && inputs[i - 1]) {
+        inputs[i - 1].focus();
+      }
+      if (e.key === 'ArrowRight' && inputs[i + 1]) inputs[i + 1].focus();
+      if (e.key === 'ArrowLeft'  && inputs[i - 1]) inputs[i - 1].focus();
+      if (e.key === 'Enter' && hidden && hidden.value.length === 6) form.submit();
+    });
+
+    inp.addEventListener('paste', e => {
+      const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+      if (text.length >= 4) {
+        inputs.forEach((el, idx) => el.value = text[idx] || '');
+        const last = Math.min(text.length - 1, inputs.length - 1);
+        inputs[last].focus();
+        updateState();
+        e.preventDefault();
+      }
+    });
+
+    inp.addEventListener('click', () => inp.select());
+  });
+
+  // Form submit – loading state
+  if (form) {
+    form.addEventListener('submit', e => {
+      updateState();
+      if (!hidden || hidden.value.length < 6) {
+        e.preventDefault();
+        if (grid) {
+          grid.classList.remove('shake');
+          void grid.offsetWidth;  // reflow
+          grid.classList.add('shake');
+        }
+        return;
+      }
+      // Show loading
+      if (submitBtn) {
+        submitBtn.querySelector('.submit-text').classList.add('d-none');
+        submitBtn.querySelector('.submit-loading').classList.remove('d-none');
+        submitBtn.disabled = true;
+      }
+    });
+  }
+
+  // Countdown timer
+  let seconds = 60;
+  const secEl    = document.getElementById('countdownSec');
+  const cdEl     = document.getElementById('otpCountdown');
+  const resendBtn = document.getElementById('resendBtn');
+
+  const timer = setInterval(() => {
+    seconds--;
+    if (secEl) secEl.textContent = seconds;
+    if (seconds <= 0) {
+      clearInterval(timer);
+      if (cdEl) cdEl.classList.add('d-none');
+      if (resendBtn) resendBtn.classList.remove('d-none');
+    }
+  }, 1000);
+
+  updateState();
+})();
+</script>
+{% endblock %}

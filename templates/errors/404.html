@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Page Not Found{% endblock %}
+{% block content %}
+<div style="text-align:center;padding:6rem 2rem;max-width:500px;margin:0 auto;">
+  <div style="font-size:5rem;margin-bottom:1.5rem;">🔍</div>
+  <h1 style="font-size:6rem;font-weight:900;color:var(--primary);font-family:var(--font-display);line-height:1;margin-bottom:.5rem;">404</h1>
+  <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:1rem;">Page Not Found</h2>
+  <p style="color:var(--muted);line-height:1.7;margin-bottom:2rem;">
+    The page you're looking for doesn't exist or has been moved.
+    Let's get you back on track.
+  </p>
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+    <a href="{% url 'accounts:landing' %}" class="btn btn-primary btn-lg btn-pill">🏠 Go Home</a>
+    <a href="{% url 'jobs:list' %}" class="btn btn-secondary btn-lg btn-pill">💼 Browse Jobs</a>
+  </div>
+</div>
+{% endblock %}

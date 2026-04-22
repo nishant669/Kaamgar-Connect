@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Analytics{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' %}{% endblock %}
+{% block content %}
+<div class="kc-page-header">
+  <div>
+    <h1 class="kc-page-title">Analytics</h1>
+    <p class="kc-page-subtitle">Your hiring performance overview</p>
+  </div>
+</div>
+
+<!-- Key metrics -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="kc-stat stat-blue"><div class="kc-stat-icon"><i class="bi bi-briefcase-fill"></i></div>
+    <div><div class="kc-stat-label">Total Jobs</div><div class="kc-stat-value" data-count="{{ jobs|length }}">{{ jobs|length }}</div></div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="kc-stat stat-purple"><div class="kc-stat-icon"><i class="bi bi-eye-fill"></i></div>
+    <div><div class="kc-stat-label">Total Views</div><div class="kc-stat-value" data-count="{{ total_views }}">{{ total_views }}</div></div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="kc-stat stat-amber"><div class="kc-stat-icon"><i class="bi bi-people-fill"></i></div>
+    <div><div class="kc-stat-label">Applicants</div><div class="kc-stat-value" data-count="{{ apps_by_status|length }}">—</div></div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="kc-stat stat-green"><div class="kc-stat-icon"><i class="bi bi-check-circle-fill"></i></div>
+    <div><div class="kc-stat-label">Hired</div><div class="kc-stat-value">{% for s in apps_by_status %}{% if s.status == 'accepted' %}{{ s.cnt }}{% endif %}{% endfor %}</div></div></div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Monthly applications chart -->
+  <div class="col-lg-8">
+    <div class="kc-card p-4">
+      <h6 class="fw-700 mb-4" style="font-family:var(--font-display);">Applications by Month</h6>
+      {% if monthly %}
+      {% with max_val=monthly|dictsortreversed:"count"|first %}
+      <div class="chart-bar-wrap">
+        {% for m in monthly %}
+        {% with max=max_val.count|default:1 %}
+        <div class="chart-bar-item">
+          <div class="chart-bar-val">{{ m.count }}</div>
+          <div class="chart-bar" data-height="{% widthratio m.count max 100 %}" style="height:0;background:var(--p);"></div>
+          <div class="chart-bar-label">{{ m.label }}</div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-center text-muted py-4">No data yet — applications will appear here as you hire.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Application status breakdown -->
+  <div class="col-lg-4">
+    <div class="kc-card p-4">
+      <h6 class="fw-700 mb-3" style="font-family:var(--font-display);">Application Status</h6>
+      {% for s in apps_by_status %}
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <span class="status-chip chip-{{ s.status }}">{{ s.status|capfirst }}</span>
+        <div class="d-flex align-items-center gap-2" style="flex:1;margin-left:.75rem;">
+          <div class="kc-progress flex-1">
+            <div class="kc-progress-bar" data-pct="{{ s.cnt }}" style="width:0%;"></div>
+          </div>
+          <span class="fw-700 small" style="min-width:24px;">{{ s.cnt }}</span>
+        </div>
+      </div>
+      {% empty %}
+      <div class="text-muted text-center small py-3">No applications yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Jobs list with stats -->
+  <div class="col-12">
+    <div class="kc-card">
+      <div class="p-4 pb-0"><h6 class="fw-700 mb-3" style="font-family:var(--font-display);">Your Job Performance</h6></div>
+      <div class="kc-table-wrap m-3 mt-0">
+        <table class="kc-table">
+          <thead><tr><th>Job Title</th><th>Category</th><th>Salary</th><th>Views</th><th>Applicants</th><th>Hired</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for job in jobs %}
+            <tr>
+              <td><a href="{% url 'jobs:detail' job.pk %}" class="fw-600 small text-decoration-none" style="color:var(--p);">{{ job.title }}</a></td>
+              <td><span class="kc-badge badge-gray">{{ job.get_category_display }}</span></td>
+              <td class="fw-700 small text-success">₹{{ job.salary_min|floatformat:0 }}/mo</td>
+              <td class="text-muted small">{{ job.views }}</td>
+              <td class="fw-700 text-center">{{ job.applications.count }}</td>
+              <td class="fw-700 text-center text-success">{{ job.applications.filter.status }}</td>
+              <td><span class="kc-badge {% if job.is_active %}badge-success{% else %}badge-warning{% endif %}">{% if job.is_active %}Live{% else %}Paused{% endif %}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

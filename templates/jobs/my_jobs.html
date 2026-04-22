@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}My Jobs{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' %}{% endblock %}
+{% block content %}
+<div class="kc-page-header">
+  <div>
+    <h1 class="kc-page-title">My Jobs</h1>
+    <p class="kc-page-subtitle">{{ active_count }} active · {{ jobs|length }} total · {{ total_apps }} applicants · {{ total_views }} views</p>
+  </div>
+  <a href="{% url 'jobs:post' %}" class="btn btn-primary btn-pill"><i class="bi bi-plus-lg me-1"></i> Post New Job</a>
+</div>
+
+<!-- Quick stats -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3"><div class="kc-stat stat-blue"><div class="kc-stat-icon"><i class="bi bi-briefcase-fill"></i></div><div><div class="kc-stat-label">Total Jobs</div><div class="kc-stat-value" data-count="{{ jobs|length }}">{{ jobs|length }}</div></div></div></div>
+  <div class="col-6 col-md-3"><div class="kc-stat stat-green"><div class="kc-stat-icon"><i class="bi bi-play-circle-fill"></i></div><div><div class="kc-stat-label">Active</div><div class="kc-stat-value" data-count="{{ active_count }}">{{ active_count }}</div></div></div></div>
+  <div class="col-6 col-md-3"><div class="kc-stat stat-purple"><div class="kc-stat-icon"><i class="bi bi-people-fill"></i></div><div><div class="kc-stat-label">Applicants</div><div class="kc-stat-value" data-count="{{ total_apps }}">{{ total_apps }}</div></div></div></div>
+  <div class="col-6 col-md-3"><div class="kc-stat stat-amber"><div class="kc-stat-icon"><i class="bi bi-eye-fill"></i></div><div><div class="kc-stat-label">Total Views</div><div class="kc-stat-value" data-count="{{ total_views }}">{{ total_views }}</div></div></div></div>
+</div>
+
+{% if jobs %}
+<div class="kc-table-wrap">
+  <table class="kc-table">
+    <thead>
+      <tr>
+        <th>Job Title</th><th>Category</th><th>Type</th><th>Salary</th>
+        <th style="text-align:center;">Views</th>
+        <th style="text-align:center;">Applicants</th>
+        <th>Status</th><th>Posted</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for job in jobs %}
+      <tr>
+        <td>
+          <div class="fw-700" style="font-size:.9rem;">{{ job.title }}</div>
+          <div class="text-muted" style="font-size:.73rem;"><i class="bi bi-geo-alt me-1"></i>{{ job.location }}{% if job.is_featured %} · <span style="color:var(--accent);"><i class="bi bi-star-fill me-1"></i>Featured</span>{% endif %}</div>
+        </td>
+        <td><span class="kc-badge badge-gray">{{ job.get_category_display }}</span></td>
+        <td class="text-muted small">{{ job.get_job_type_display }}</td>
+        <td class="fw-700 small" style="color:var(--success);">₹{{ job.salary_min|floatformat:0 }}–{{ job.salary_max|floatformat:0 }}</td>
+        <td class="text-center text-muted small">{{ job.views }}</td>
+        <td class="text-center">
+          <a href="{% url 'jobs:applicants' job.pk %}" class="btn btn-ghost btn-sm fw-700" style="color:var(--p);">
+            {{ job.applications.count }}
+          </a>
+        </td>
+        <td>
+          <span class="kc-badge {% if job.is_active %}badge-success{% else %}badge-warning{% endif %}">
+            {% if job.is_active %}Active{% else %}Paused{% endif %}
+          </span>
+        </td>
+        <td class="text-muted small">{{ job.created_at|date:"M d, Y" }}</td>
+        <td>
+          <div class="d-flex gap-1">
+            <a href="{% url 'jobs:detail' job.pk %}" class="btn btn-ghost btn-icon-sm" title="View"><i class="bi bi-eye"></i></a>
+            <a href="{% url 'jobs:edit' job.pk %}" class="btn btn-ghost btn-icon-sm" title="Edit"><i class="bi bi-pencil"></i></a>
+            <a href="{% url 'jobs:applicants' job.pk %}" class="btn btn-ghost btn-icon-sm" title="Applicants"><i class="bi bi-people"></i></a>
+            <a href="{% url 'jobs:toggle' job.pk %}" class="btn btn-ghost btn-icon-sm" title="{% if job.is_active %}Pause{% else %}Activate{% endif %}" data-confirm="Toggle job status?">
+              <i class="bi bi-{% if job.is_active %}pause-circle{% else %}play-circle{% endif %}"></i>
+            </a>
+            <form method="post" action="{% url 'jobs:delete' job.pk %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-ghost btn-icon-sm" style="color:var(--danger);" title="Delete" data-confirm="Delete '{{ job.title }}'? This cannot be undone."><i class="bi bi-trash3"></i></button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="kc-empty kc-card p-5">
+  <div class="empty-icon">📭</div>
+  <div class="empty-title">No Jobs Posted Yet</div>
+  <div class="empty-desc">Post your first job to start receiving applications from skilled, verified workers in your area.</div>
+  <a href="{% url 'jobs:post' %}" class="btn btn-primary btn-pill mt-3"><i class="bi bi-plus-lg me-1"></i>Post a Job</a>
+</div>
+{% endif %}
+{% endblock %}

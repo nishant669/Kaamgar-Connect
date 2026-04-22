@@ -1,0 +1,456 @@
+{% extends 'base.html' %}
+{% block title %}My Profile{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' %}{% endblock %}
+{% block content %}
+
+<!-- Profile cover + avatar -->
+<div class="mb-4" style="border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--shadow-md);">
+  <div class="kc-profile-cover"></div>
+  <div class="kc-profile-body" style="position:relative;">
+    <div class="kc-profile-avatar-wrap">
+      <div class="kc-profile-avatar" id="profileAvatarDisplay">
+        {% if user.profile_photo %}
+          <img src="{{ user.profile_photo.url }}" alt="Profile Photo" class="profile-photo-preview">
+        {% else %}
+          {{ user.first_name|first|upper|default:user.username|first|upper }}
+        {% endif %}
+      </div>
+    </div>
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+      <div>
+        <h2 class="fw-800 mb-1" style="font-family:var(--font-display);font-size:1.5rem;">
+          {{ user.get_full_name|default:user.username }}
+        </h2>
+        <p class="text-muted mb-2" style="font-size:.9rem;">
+          {{ user.role|capfirst }} Account
+          {% if user.city %} · 📍 {{ user.city }}{% endif %}
+          {% if user.phone %} · 📱 {{ user.phone }}{% endif %}
+        </p>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+          {% if user.role == 'worker' and worker_profile %}
+            <span class="kc-badge badge-primary">{{ worker_profile.get_skills_display }}</span>
+            {% if worker_profile.aadhar_verified %}
+              <span class="kc-badge badge-verified"><i class="bi bi-patch-check-fill me-1"></i>ID Verified</span>
+            {% else %}
+              <span class="kc-badge badge-warning"><i class="bi bi-clock me-1"></i>Verification Pending</span>
+            {% endif %}
+            {% if worker_profile.availability %}
+              <span class="kc-badge badge-success"><i class="bi bi-circle-fill me-1" style="font-size:.45rem;"></i>Available</span>
+            {% else %}
+              <span class="kc-badge badge-danger">Unavailable</span>
+            {% endif %}
+            {% if worker_profile.rating %}
+              <span class="text-muted small fw-600">⭐ {{ worker_profile.rating }}/5.0 · {{ worker_profile.total_jobs }} jobs done</span>
+            {% endif %}
+          {% elif user.role == 'employer' and employer_profile %}
+            <span class="kc-badge badge-primary">Employer</span>
+            {% if employer_profile.verified %}
+              <span class="kc-badge badge-verified"><i class="bi bi-patch-check-fill me-1"></i>Verified Employer</span>
+            {% endif %}
+            {% if employer_profile.company_name %}
+              <span class="text-muted small fw-600"><i class="bi bi-building me-1"></i>{{ employer_profile.company_name }}</span>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <label for="profilePhotoInput" class="btn btn-secondary btn-pill" style="cursor:pointer;">
+          <i class="bi bi-camera-fill me-1"></i> Change Photo
+        </label>
+      </div>
+    </div>
+    {% if user.bio %}
+      <p class="text-muted mt-3 lh-relaxed" style="max-width:600px;font-size:.9rem;">{{ user.bio }}</p>
+    {% endif %}
+
+    <!-- Profile completion bar (workers only) -->
+    {% if user.role == 'worker' and worker_profile %}
+    <div class="mt-3">
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <span class="small fw-600 text-muted">Profile Completion</span>
+        <span class="small fw-700" style="color:var(--p);">{{ worker_profile.completion_pct }}%</span>
+      </div>
+      <div class="kc-progress">
+        <div class="kc-progress-bar {% if worker_profile.completion_pct >= 80 %}green{% elif worker_profile.completion_pct >= 50 %}{% else %}amber{% endif %}"
+             data-pct="{{ worker_profile.completion_pct }}" style="width:0%;"></div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="profile-tabs mb-4">
+  <button class="profile-tab active" data-tab="tab-personal"><i class="bi bi-person me-1"></i>Personal Info</button>
+  {% if user.role == 'worker' and worker_profile %}
+    <button class="profile-tab" data-tab="tab-work"><i class="bi bi-briefcase me-1"></i>Work Details</button>
+    <button class="profile-tab" data-tab="tab-resume"><i class="bi bi-file-earmark-text me-1"></i>Resume</button>
+  {% elif user.role == 'employer' and employer_profile %}
+    <button class="profile-tab" data-tab="tab-company"><i class="bi bi-building me-1"></i>Company Info</button>
+  {% endif %}
+  <button class="profile-tab" data-tab="tab-security"><i class="bi bi-shield-lock me-1"></i>Security</button>
+  <button class="profile-tab" data-tab="tab-stats"><i class="bi bi-bar-chart me-1"></i>Stats</button>
+</div>
+
+<form method="post" enctype="multipart/form-data" id="profileForm">
+  {% csrf_token %}
+  <input type="file" name="profile_photo" id="profilePhotoInput" accept="image/*" style="display:none;">
+
+  <!-- TAB: Personal Info -->
+  <div id="tab-personal" class="profile-tab-content">
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="kc-card p-4">
+          <h6 class="fw-700 mb-4" style="font-family:var(--font-display);">Personal Information</h6>
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label">First Name</label>
+              <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}" placeholder="Your first name">
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Last Name</label>
+              <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}" placeholder="Your last name">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Email Address</label>
+              <div class="kc-input-wrap">
+                <i class="bi bi-envelope kc-input-icon"></i>
+                <input type="email" class="form-control" value="{{ user.email }}" disabled style="opacity:.6;">
+              </div>
+              <p class="form-hint"><i class="bi bi-info-circle me-1"></i>Email cannot be changed for security reasons.</p>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Phone Number</label>
+              <div class="kc-input-wrap">
+                <i class="bi bi-telephone kc-input-icon"></i>
+                <input type="tel" name="phone" class="form-control" value="{{ user.phone }}" placeholder="+91 98765 43210">
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">City / Location</label>
+              <div class="kc-input-wrap">
+                <i class="bi bi-geo-alt kc-input-icon"></i>
+                <input type="text" name="city" class="form-control" value="{{ user.city }}" placeholder="Bhopal / Indore">
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Bio / About You</label>
+              <textarea name="bio" class="form-control" rows="4" placeholder="Tell employers or workers about yourself, your experience, and what makes you great…" data-maxchars="400">{{ user.bio }}</textarea>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Language Preference</label>
+              <select name="language" class="form-select">
+                <option value="en" {% if user.language == 'en' %}selected{% endif %}>🇬🇧 English</option>
+                <option value="hi" {% if user.language == 'hi' %}selected{% endif %}>🇮🇳 हिन्दी (Hindi)</option>
+              </select>
+            </div>
+          </div>
+          <div class="mt-4 pt-3" style="border-top:1px solid var(--border);">
+            <button type="submit" class="btn btn-primary btn-pill px-5">
+              <i class="bi bi-check-lg me-1"></i> Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="kc-card p-4">
+          <h6 class="fw-700 mb-3" style="font-family:var(--font-display);">Account Details</h6>
+          <div class="d-flex flex-column gap-2">
+            {% for label, val, cls in account_details %}
+            <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom:1px solid var(--border);">
+              <span class="text-muted small">{{ label }}</span>
+              <span class="{{ cls }} fw-600 small">{{ val }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Work Details (Worker only) -->
+  {% if user.role == 'worker' and worker_profile %}
+  <div id="tab-work" class="profile-tab-content" style="display:none;">
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="kc-card p-4">
+          <h6 class="fw-700 mb-4" style="font-family:var(--font-display);">Worker Details</h6>
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label">Primary Skill <span class="req">*</span></label>
+              <select name="skills" class="form-select">
+                {% for val, label in worker_profile.SKILL_CHOICES %}
+                <option value="{{ val }}" {% if worker_profile.skills == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Experience (Years)</label>
+              <input type="number" name="experience_years" class="form-control" value="{{ worker_profile.experience_years }}" min="0" max="50" placeholder="0">
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Daily Rate (₹)</label>
+              <div class="kc-input-wrap">
+                <i class="bi bi-currency-rupee kc-input-icon"></i>
+                <input type="number" name="daily_rate" class="form-control" value="{{ worker_profile.daily_rate|floatformat:0 }}" min="0" placeholder="500">
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Languages Spoken</label>
+              <input type="text" name="languages" class="form-control" value="{{ worker_profile.languages }}" placeholder="Hindi, English">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Additional Skills</label>
+              <input type="text" name="extra_skills" class="form-control" value="{{ worker_profile.extra_skills }}" placeholder="e.g. Welding, Safety, First Aid (comma separated)">
+              <p class="form-hint">List additional skills to improve job matches.</p>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Work Address</label>
+              <textarea name="address" class="form-control" rows="3" placeholder="Your full address for nearby job recommendations…">{{ worker_profile.address }}</textarea>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Portfolio / Website (Optional)</label>
+              <div class="kc-input-wrap">
+                <i class="bi bi-link-45deg kc-input-icon"></i>
+                <input type="url" name="portfolio_url" class="form-control" value="{{ worker_profile.portfolio_url }}" placeholder="https://yoursite.com">
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Availability Status</label>
+              <div class="d-flex align-items-center gap-3 mt-1">
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input" type="checkbox" name="availability" id="availToggle" {% if worker_profile.availability %}checked{% endif %} style="width:2.5em;height:1.25em;cursor:pointer;">
+                  <label class="form-check-label fw-600" for="availToggle" id="availLabel">
+                    {% if worker_profile.availability %}<span class="text-success">Available for Hire</span>{% else %}<span class="text-muted">Not Available</span>{% endif %}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-3" style="border-top:1px solid var(--border);">
+            <button type="submit" class="btn btn-primary btn-pill px-5"><i class="bi bi-check-lg me-1"></i> Save Work Details</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="kc-card p-4 mb-3">
+          <h6 class="fw-700 mb-3" style="font-family:var(--font-display);">Profile Strength</h6>
+          <div class="text-center mb-3">
+            <div style="font-size:2.5rem;font-weight:900;font-family:var(--font-display);color:{% if worker_profile.completion_pct >= 80 %}var(--success){% elif worker_profile.completion_pct >= 50 %}var(--p){% else %}var(--warning){% endif %};">
+              {{ worker_profile.completion_pct }}%
+            </div>
+            <div class="text-muted small">Profile Complete</div>
+          </div>
+          <div class="kc-progress mb-3">
+            <div class="kc-progress-bar {% if worker_profile.completion_pct >= 80 %}green{% endif %}" data-pct="{{ worker_profile.completion_pct }}" style="width:0%;"></div>
+          </div>
+          <div class="d-flex flex-column gap-1">
+            {% for label, done in checklist %}
+            <div class="d-flex align-items-center gap-2 small" style="color:{% if done %}var(--success){% else %}var(--muted){% endif %};">
+              <i class="bi bi-{% if done %}check-circle-fill{% else %}circle{% endif %}" style="font-size:.85rem;"></i>
+              {{ label }}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Resume -->
+  <div id="tab-resume" class="profile-tab-content" style="display:none;">
+    <div class="row g-4 justify-content-center">
+      <div class="col-lg-7">
+        <div class="kc-card p-4">
+          <h6 class="fw-700 mb-2" style="font-family:var(--font-display);">Resume / CV</h6>
+          <p class="text-muted small mb-4">Upload your resume in PDF, DOC, or DOCX format. Max size: 5MB.</p>
+          {% if worker_profile.resume %}
+          <div class="kc-alert kc-alert-success mb-4 d-flex align-items-center gap-3">
+            <i class="bi bi-file-earmark-check-fill fs-4"></i>
+            <div>
+              <div class="fw-700">Current Resume</div>
+              <div class="small">{{ worker_profile.resume.name|truncatechars:40 }}</div>
+            </div>
+            <a href="{{ worker_profile.resume.url }}" target="_blank" class="btn btn-sm btn-success btn-pill ms-auto">
+              <i class="bi bi-download me-1"></i> Download
+            </a>
+          </div>
+          {% endif %}
+          <div class="resume-upload-area kc-upload mb-4" data-max-mb="5">
+            <input type="file" name="resume" accept=".pdf,.doc,.docx">
+            <div class="upload-icon">📄</div>
+            <div class="upload-text fw-600 resume-filename">
+              {% if worker_profile.resume %}Replace Resume{% else %}Upload Resume{% endif %}
+            </div>
+            <div class="upload-hint">PDF, DOC, DOCX · Max 5MB</div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-pill px-5 w-100">
+            <i class="bi bi-cloud-upload me-1"></i> Save Resume
+          </button>
+        </div>
+        <div class="kc-card p-4 mt-3">
+          <h6 class="fw-700 mb-3" style="font-family:var(--font-display);">💡 Resume Tips</h6>
+          <ul class="small text-muted lh-relaxed" style="padding-left:1.25rem;">
+            <li>Keep your resume to 1–2 pages</li>
+            <li>Highlight your years of experience and key skills</li>
+            <li>Include contact details and your city</li>
+            <li>Mention certifications (ITI, Diploma, etc.)</li>
+            <li>Use a professional PDF format</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- TAB: Company Info (Employer only) -->
+  {% if user.role == 'employer' and employer_profile %}
+  <div id="tab-company" class="profile-tab-content" style="display:none;">
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="kc-card p-4">
+          <h6 class="fw-700 mb-4" style="font-family:var(--font-display);">Company Information</h6>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Company Name</label>
+              <div class="kc-input-wrap">
+                <i class="bi bi-building kc-input-icon"></i>
+                <input type="text" name="company_name" class="form-control" value="{{ employer_profile.company_name }}" placeholder="Your Company Pvt. Ltd.">
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Industry</label>
+              <input type="text" name="industry" class="form-control" value="{{ employer_profile.industry }}" placeholder="Construction, IT, etc.">
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">Company Size</label>
+              <select name="company_size" class="form-select">
+                <option value="">Select size</option>
+                <option value="1-10" {% if employer_profile.company_size == '1-10' %}selected{% endif %}>1–10 employees</option>
+                <option value="11-50" {% if employer_profile.company_size == '11-50' %}selected{% endif %}>11–50 employees</option>
+                <option value="51-200" {% if employer_profile.company_size == '51-200' %}selected{% endif %}>51–200 employees</option>
+                <option value="200+" {% if employer_profile.company_size == '200+' %}selected{% endif %}>200+ employees</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Website</label>
+              <div class="kc-input-wrap">
+                <i class="bi bi-globe kc-input-icon"></i>
+                <input type="url" name="website" class="form-control" value="{{ employer_profile.website }}" placeholder="https://yourcompany.com">
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Company Description</label>
+              <textarea name="company_desc" class="form-control" rows="4" placeholder="What does your company do? What kind of workers are you looking for?" data-maxchars="600">{{ employer_profile.description }}</textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Company Logo</label>
+              <div class="kc-upload" data-max-mb="2">
+                <input type="file" name="company_logo" accept="image/*">
+                <div class="upload-icon">🏢</div>
+                <div class="upload-text fw-600">Upload Company Logo</div>
+                <div class="upload-hint">PNG, JPG · Max 2MB</div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-3" style="border-top:1px solid var(--border);">
+            <button type="submit" class="btn btn-primary btn-pill px-5"><i class="bi bi-check-lg me-1"></i> Save Company Info</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- TAB: Security -->
+  <div id="tab-security" class="profile-tab-content" style="display:none;">
+    <div class="row g-4 justify-content-center">
+      <div class="col-lg-6">
+        <div class="kc-card p-4">
+          <h6 class="fw-700 mb-2" style="font-family:var(--font-display);">Change Password</h6>
+          <p class="text-muted small mb-4">Use a strong password with letters, numbers, and symbols.</p>
+          <form method="post" action="{% url 'accounts:change_password' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label">Current Password <span class="req">*</span></label>
+              <div class="kc-input-wrap">
+                <i class="bi bi-lock kc-input-icon"></i>
+                <input type="password" name="old_password" class="form-control" placeholder="Your current password" required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">New Password <span class="req">*</span></label>
+              <div class="kc-input-wrap">
+                <i class="bi bi-lock-fill kc-input-icon"></i>
+                <input type="password" name="new_password" id="pwInput" class="form-control" placeholder="Min 8 characters" required>
+              </div>
+              <div class="kc-progress mt-2" style="height:5px;"><div class="kc-progress-bar" id="pw-strength" style="width:0%;transition:width .4s,background .4s;"></div></div>
+              <div class="d-flex justify-content-between mt-1"><span class="form-hint">Password strength</span><span class="form-hint fw-600" id="pw-label"></span></div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label">Confirm New Password <span class="req">*</span></label>
+              <div class="kc-input-wrap">
+                <i class="bi bi-lock-fill kc-input-icon"></i>
+                <input type="password" name="confirm_password" class="form-control" placeholder="Repeat new password" required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-pill w-100 py-3">
+              <i class="bi bi-shield-check me-1"></i> Update Password
+            </button>
+          </form>
+        </div>
+        <div class="kc-card p-4 mt-3" style="background:rgba(225,29,72,.04);border-color:rgba(225,29,72,.15);">
+          <h6 class="fw-700 mb-2 text-danger"><i class="bi bi-shield-exclamation me-1"></i>Security Tips</h6>
+          <ul class="small text-muted lh-relaxed mb-0" style="padding-left:1.25rem;">
+            <li>Never share your password with anyone</li>
+            <li>Use a unique password not used on other sites</li>
+            <li>Mix uppercase, lowercase, numbers and symbols</li>
+            <li>Change your password regularly</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Stats -->
+  <div id="tab-stats" class="profile-tab-content" style="display:none;">
+    <div class="row g-4">
+      {% if user.role == 'worker' %}
+      <div class="col-6 col-md-3"><div class="kc-stat stat-blue"><div class="kc-stat-icon"><i class="bi bi-file-earmark-text-fill"></i></div><div><div class="kc-stat-label">Applications</div><div class="kc-stat-value" data-count="{{ user.applications.count }}">{{ user.applications.count }}</div></div></div></div>
+      <div class="col-6 col-md-3"><div class="kc-stat stat-green"><div class="kc-stat-icon"><i class="bi bi-check-circle-fill"></i></div><div><div class="kc-stat-label">Jobs Completed</div><div class="kc-stat-value" data-count="{% if worker_profile %}{{ worker_profile.total_jobs }}{% else %}0{% endif %}">0</div></div></div></div>
+      <div class="col-6 col-md-3"><div class="kc-stat stat-amber"><div class="kc-stat-icon"><i class="bi bi-star-fill"></i></div><div><div class="kc-stat-label">Rating</div><div class="kc-stat-value">{% if worker_profile %}{{ worker_profile.rating }}{% else %}—{% endif %}</div></div></div></div>
+      <div class="col-6 col-md-3"><div class="kc-stat stat-purple"><div class="kc-stat-icon"><i class="bi bi-bookmark-heart-fill"></i></div><div><div class="kc-stat-label">Saved Jobs</div><div class="kc-stat-value" data-count="{{ user.saved_jobs.count }}">{{ user.saved_jobs.count }}</div></div></div></div>
+      {% else %}
+      <div class="col-6 col-md-3"><div class="kc-stat stat-blue"><div class="kc-stat-icon"><i class="bi bi-briefcase-fill"></i></div><div><div class="kc-stat-label">Jobs Posted</div><div class="kc-stat-value" data-count="{{ user.posted_jobs.count }}">{{ user.posted_jobs.count }}</div></div></div></div>
+      <div class="col-6 col-md-3"><div class="kc-stat stat-purple"><div class="kc-stat-icon"><i class="bi bi-people-fill"></i></div><div><div class="kc-stat-label">Total Applicants</div><div class="kc-stat-value">—</div></div></div></div>
+      <div class="col-6 col-md-3"><div class="kc-stat stat-green"><div class="kc-stat-icon"><i class="bi bi-check-circle-fill"></i></div><div><div class="kc-stat-label">Hired</div><div class="kc-stat-value">—</div></div></div></div>
+      {% endif %}
+      <div class="col-12">
+        <div class="kc-card p-4">
+          <h6 class="fw-700 mb-3" style="font-family:var(--font-display);">Account Information</h6>
+          <div class="row g-3 small text-muted">
+            <div class="col-sm-6"><strong class="text-body">Username:</strong> {{ user.username }}</div>
+            <div class="col-sm-6"><strong class="text-body">Member Since:</strong> {{ user.created_at|date:"F j, Y" }}</div>
+            <div class="col-sm-6"><strong class="text-body">Email Verified:</strong> {% if user.otp_verified %}<span class="text-success fw-600">✓ Verified</span>{% else %}<span class="text-danger">Not Verified</span>{% endif %}</div>
+            <div class="col-sm-6"><strong class="text-body">Account Type:</strong> {{ user.role|capfirst }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</form>
+
+<script>
+// Availability toggle label
+const toggle = document.getElementById('availToggle');
+const label  = document.getElementById('availLabel');
+if (toggle && label) {
+  toggle.addEventListener('change', () => {
+    label.innerHTML = toggle.checked
+      ? '<span class="text-success">Available for Hire</span>'
+      : '<span class="text-muted">Not Available</span>';
+  });
+}
+</script>
+{% endblock %}

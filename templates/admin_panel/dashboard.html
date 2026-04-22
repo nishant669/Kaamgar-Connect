@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="kc-page-header">
+  <div>
+    <div style="font-size:.78rem;font-weight:700;color:var(--danger);letter-spacing:.07em;text-transform:uppercase;font-family:var(--font-display);margin-bottom:.3rem;">
+      <i class="bi bi-shield-fill me-1"></i> Admin Panel
+    </div>
+    <h1 class="kc-page-title">Platform Overview</h1>
+    <p class="kc-page-subtitle">Full control of Kaamgar Connect</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'admin_panel:users' %}" class="btn btn-secondary"><i class="bi bi-people me-1"></i> Users</a>
+    <a href="{% url 'admin_panel:jobs' %}" class="btn btn-secondary"><i class="bi bi-briefcase me-1"></i> Jobs</a>
+    <a href="{% url 'django-admin:index' %}" class="btn btn-primary btn-pill" target="_blank"><i class="bi bi-gear me-1"></i> Django Admin</a>
+  </div>
+</div>
+
+<!-- Stats grid -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="kc-stat stat-blue"><div class="kc-stat-icon"><i class="bi bi-people-fill"></i></div>
+    <div><div class="kc-stat-label">Total Users</div><div class="kc-stat-value" data-count="{{ stats.total_users }}">{{ stats.total_users }}</div><div class="kc-stat-trend">+{{ stats.new_users_week }} this week</div></div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="kc-stat stat-purple"><div class="kc-stat-icon"><i class="bi bi-person-fill-gear"></i></div>
+    <div><div class="kc-stat-label">Workers</div><div class="kc-stat-value" data-count="{{ stats.total_workers }}">{{ stats.total_workers }}</div><div class="kc-stat-trend">{{ stats.verified_workers }} verified</div></div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="kc-stat stat-amber"><div class="kc-stat-icon"><i class="bi bi-briefcase-fill"></i></div>
+    <div><div class="kc-stat-label">Total Jobs</div><div class="kc-stat-value" data-count="{{ stats.total_jobs }}">{{ stats.total_jobs }}</div><div class="kc-stat-trend">{{ stats.active_jobs }} active</div></div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="kc-stat stat-green"><div class="kc-stat-icon"><i class="bi bi-file-earmark-text-fill"></i></div>
+    <div><div class="kc-stat-label">Applications</div><div class="kc-stat-value" data-count="{{ stats.total_apps }}">{{ stats.total_apps }}</div><div class="kc-stat-trend">{{ stats.accepted_apps }} accepted</div></div></div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Recent users -->
+  <div class="col-lg-6">
+    <div class="kc-card">
+      <div class="d-flex align-items-center justify-content-between p-4 pb-0 mb-3">
+        <h6 class="fw-700 mb-0" style="font-family:var(--font-display);">Recent Users</h6>
+        <a href="{% url 'admin_panel:users' %}" class="btn btn-ghost btn-sm text-primary">View All →</a>
+      </div>
+      <div class="kc-table-wrap mx-3 mb-3">
+        <table class="kc-table">
+          <thead><tr><th>User</th><th>Role</th><th>Joined</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for u in recent_users %}
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="kc-avatar" style="width:32px;height:32px;font-size:.75rem;">{{ u.first_name|first|upper|default:u.username|first|upper }}</div>
+                  <div>
+                    <div class="fw-600 small">{{ u.get_full_name|default:u.username }}</div>
+                    <div class="text-muted" style="font-size:.7rem;">{{ u.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="kc-badge {% if u.role == 'employer' %}badge-primary{% else %}badge-success{% endif %}">{{ u.role }}</span></td>
+              <td class="text-muted small">{{ u.date_joined|date:"M d" }}</td>
+              <td>
+                <a href="{% url 'admin_panel:toggle_user' u.pk %}" class="btn btn-sm {% if u.is_active %}btn-ghost{% else %}btn-danger{% endif %} btn-pill" style="font-size:.68rem;" data-confirm="Toggle user status?">
+                  {% if u.is_active %}Active{% else %}Blocked{% endif %}
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending verifications -->
+  <div class="col-lg-6">
+    <div class="kc-card">
+      <div class="d-flex align-items-center justify-content-between p-4 pb-0 mb-3">
+        <h6 class="fw-700 mb-0" style="font-family:var(--font-display);">Pending Verifications</h6>
+        <span class="kc-badge badge-warning">{{ pending_verifications|length }} pending</span>
+      </div>
+      <div class="p-3">
+        {% for wp in pending_verifications %}
+        <div class="d-flex align-items-center gap-3 p-3 rounded-3 mb-1" style="background:var(--surface2);">
+          <div class="kc-avatar kc-avatar-sm">{{ wp.user.first_name|first|upper|default:wp.user.username|first|upper }}</div>
+          <div class="flex-1">
+            <div class="fw-600 small">{{ wp.user.get_full_name|default:wp.user.username }}</div>
+            <div class="text-muted" style="font-size:.72rem;">{{ wp.get_skills_display }} · {{ wp.user.city|default:"–" }}</div>
+          </div>
+          <a href="{% url 'admin_panel:verify_worker' wp.user.pk %}" class="btn btn-success btn-sm btn-pill" data-confirm="Verify this worker?" style="font-size:.72rem;">
+            <i class="bi bi-patch-check me-1"></i> Verify
+          </a>
+        </div>
+        {% empty %}
+        <div class="text-center py-3 text-muted small"><i class="bi bi-check-circle-fill text-success me-1"></i>All workers verified!</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent jobs -->
+  <div class="col-12">
+    <div class="kc-card">
+      <div class="d-flex align-items-center justify-content-between p-4 pb-0 mb-3">
+        <h6 class="fw-700 mb-0" style="font-family:var(--font-display);">Recent Job Postings</h6>
+        <a href="{% url 'admin_panel:jobs' %}" class="btn btn-ghost btn-sm text-primary">View All →</a>
+      </div>
+      <div class="kc-table-wrap mx-3 mb-3">
+        <table class="kc-table">
+          <thead><tr><th>Job</th><th>Employer</th><th>Category</th><th>Apps</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody>
+            {% for job in recent_jobs %}
+            <tr>
+              <td>
+                <div class="fw-600 small">{{ job.title }}</div>
+                <div class="text-muted" style="font-size:.7rem;">📍 {{ job.location }}</div>
+              </td>
+              <td class="small text-muted">{{ job.employer.get_full_name|default:job.employer.username }}</td>
+              <td><span class="kc-badge badge-gray">{{ job.get_category_display }}</span></td>
+              <td class="text-center fw-700">{{ job.applications.count }}</td>
+              <td>
+                <span class="kc-badge {% if job.is_active %}badge-success{% else %}badge-warning{% endif %}">
+                  {% if job.is_active %}Active{% else %}Paused{% endif %}
+                </span>
+              </td>
+              <td>
+                <a href="{% url 'admin_panel:feature_job' job.pk %}" class="btn btn-ghost btn-sm" data-confirm="Toggle featured status?" title="{% if job.is_featured %}Unfeature{% else %}Feature{% endif %}">
+                  <i class="bi bi-star{% if job.is_featured %}-fill text-warning{% endif %}"></i>
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

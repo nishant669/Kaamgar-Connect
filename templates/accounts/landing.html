@@ -1,0 +1,367 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block full_content %}
+
+<!-- ═══ HERO ═══════════════════════════════════════════ -->
+<section class="kc-hero">
+  <div class="container position-relative">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6 kc-fade-in">
+        <div class="kc-hero-badge mb-3">
+          <i class="bi bi-lightning-charge-fill"></i> India's #1 Local Job Marketplace
+        </div>
+        <h1 class="kc-hero-title mb-4">
+          Connecting Local<br>Talent with <span class="accent">Local Needs.</span>
+        </h1>
+        <p class="kc-hero-subtitle mb-5">
+          Find Aadhaar-verified workers in Bhopal, Indore & beyond — or get hired fast. Trusted by 10,000+ workers and employers.
+        </p>
+
+        <!-- Search bar -->
+        <div class="kc-search-bar mb-5">
+          <i class="bi bi-search ms-2 text-muted fs-5"></i>
+          <input type="text" placeholder="Search jobs, skills, or location…" id="hero-search">
+          <select id="hero-category">
+            <option value="">All Categories</option>
+            {% for val, label in categories %}
+            <option value="{{ val }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+          <a id="hero-search-btn" href="{% url 'jobs:list' %}" class="btn btn-primary px-4 fw-700 rounded-pill py-2" onclick="heroSearch(event)">
+            <i class="bi bi-search me-1"></i> Search
+          </a>
+        </div>
+
+        <!-- Stats -->
+        <div class="kc-stats-row">
+          <div class="kc-hero-stat">
+            <div class="value" data-count="10000" data-suffix="+">10,000+</div>
+            <div class="label">Total Users</div>
+          </div>
+          <div class="kc-divider"></div>
+          <div class="kc-hero-stat">
+            <div class="value" data-count="500" data-suffix="+">500+</div>
+            <div class="label">Active Jobs</div>
+          </div>
+          <div class="kc-divider"></div>
+          <div class="kc-hero-stat">
+            <div class="value" data-count="25000" data-suffix="+">25,000+</div>
+            <div class="label">Jobs Completed</div>
+          </div>
+          <div class="kc-divider"></div>
+          <div class="kc-hero-stat">
+            <div class="value">4.8★</div>
+            <div class="label">Avg. Rating</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 d-none d-lg-flex justify-content-center kc-fade-in kc-delay-2">
+        <div style="position:relative;width:420px;height:420px;">
+          <!-- Floating cards decoration -->
+          <div class="kc-card p-3 shadow-lg" style="position:absolute;top:0;right:0;width:200px;animation:float1 4s ease-in-out infinite;">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <div class="kc-avatar-sm" style="background:linear-gradient(135deg,#0d6efd,#6366f1);">R</div>
+              <div><div class="fw-700 small">Rahul Sharma</div><div class="text-muted" style="font-size:.72rem;">Electrician ⭐4.9</div></div>
+            </div>
+            <span class="badge bg-success-subtle text-success fw-700">✓ Available</span>
+          </div>
+          <div class="kc-card p-3 shadow-lg" style="position:absolute;bottom:60px;left:0;width:200px;animation:float2 5s ease-in-out infinite;">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <i class="bi bi-briefcase-fill text-primary fs-4"></i>
+              <div><div class="fw-700 small">Plumber Needed</div><div class="text-muted" style="font-size:.72rem;">₹800/day · Bhopal</div></div>
+            </div>
+            <div class="text-success fw-700 small">12 Applicants</div>
+          </div>
+          <div class="kc-card p-3 shadow-lg" style="position:absolute;bottom:0;right:20px;width:190px;animation:float3 3.5s ease-in-out infinite;">
+            <div class="text-success fw-700 mb-1"><i class="bi bi-check-circle-fill me-1"></i>Hired!</div>
+            <div class="small text-muted">Suresh Kumar accepted the job offer for Security Guard position.</div>
+          </div>
+          <!-- Central illustration -->
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:160px;height:160px;background:rgba(255,255,255,.12);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.2);">
+            <div style="font-size:5rem;">🔗</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+@keyframes float1 {0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+@keyframes float2 {0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+@keyframes float3 {0%,100%{transform:translateY(0);}50%{transform:translateY(-15px);}}
+</style>
+
+<!-- ═══ CATEGORIES ══════════════════════════════════════ -->
+<section class="py-5" style="background:var(--kc-surface);">
+  <div class="container">
+    <div class="text-center mb-4">
+      <h2 class="kc-section-title mb-2">Browse by Category</h2>
+      <p class="text-muted">Find skilled workers or jobs in your field</p>
+    </div>
+    <div class="row g-3">
+      {% for val, label in categories %}
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <a href="{% url 'jobs:list' %}?category={{ val }}" class="kc-card kc-card-hover text-center p-3 d-block text-decoration-none" style="color:var(--kc-text);">
+          <div class="fs-2 mb-2">{% if val == 'construction' %}🏗️{% elif val == 'electrical' %}⚡{% elif val == 'plumbing' %}🔧{% elif val == 'carpentry' %}🪚{% elif val == 'painting' %}🎨{% elif val == 'driving' %}🚗{% elif val == 'cooking' %}👨‍🍳{% elif val == 'cleaning' %}🧹{% elif val == 'security' %}🛡️{% elif val == 'welding' %}⚒️{% else %}💼{% endif %}</div>
+          <div class="fw-700 small">{{ label }}</div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ════════════════════════════════════════ -->
+<section class="kc-section" id="about">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div class="kc-section-badge mb-3"><i class="bi bi-stars"></i> Why Choose Us</div>
+      <h2 class="kc-section-title mb-3">Built for India's Workforce</h2>
+      <p class="kc-section-subtitle">A seamless experience for both workers and employers — quality and trust in every interaction.</p>
+    </div>
+    <div class="row g-4">
+      {% for f in features %}
+      <div class="col-md-6 col-lg-4 kc-reveal">
+        <div class="kc-feature-card">
+          <div class="kc-feature-icon">{{ f.icon }}</div>
+          <h5 class="fw-800 mb-2">{{ f.title }}</h5>
+          <p class="text-muted mb-0 lh-lg">{{ f.desc }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HOW IT WORKS ════════════════════════════════════ -->
+<section class="kc-section" style="background:var(--kc-surface);">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div class="kc-section-badge mb-3"><i class="bi bi-diagram-3"></i> Simple Process</div>
+      <h2 class="kc-section-title mb-3">How It Works</h2>
+      <p class="text-muted">Get started in 3 easy steps</p>
+    </div>
+    <div class="row g-4 position-relative">
+      {% for step in steps %}
+      <div class="col-md-4 text-center kc-reveal position-relative">
+        {% if not forloop.last %}<div class="kc-step-line d-none d-md-block"></div>{% endif %}
+        <div class="kc-step-number mb-3" style="background:{% if forloop.counter == 2 %}var(--kc-primary);color:white;{% else %}var(--kc-primary-soft);color:var(--kc-primary);{% endif %}">{{ forloop.counter }}</div>
+        <h5 class="fw-800 mb-2">{{ step.title }}</h5>
+        <p class="text-muted lh-lg">{{ step.desc }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURED JOBS ════════════════════════════════════ -->
+{% if featured_jobs %}
+<section class="kc-section">
+  <div class="container">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div>
+        <div class="kc-section-badge mb-2"><i class="bi bi-briefcase"></i> Latest Jobs</div>
+        <h2 class="kc-section-title mb-0">Featured Job Listings</h2>
+      </div>
+      <a href="{% url 'jobs:list' %}" class="btn btn-outline-primary fw-700 px-4 rounded-pill">View All Jobs</a>
+    </div>
+    <div class="row g-4">
+      {% for job in featured_jobs %}
+      <div class="col-md-6 col-lg-4 kc-reveal">
+        <a href="{% url 'jobs:detail' job.pk %}" class="kc-job-card">
+          <div class="d-flex align-items-start gap-3 mb-3">
+            <div class="kc-job-icon">{% if job.category == 'electrical' %}⚡{% elif job.category == 'plumbing' %}🔧{% elif job.category == 'construction' %}🏗️{% elif job.category == 'driving' %}🚗{% elif job.category == 'security' %}🛡️{% else %}💼{% endif %}</div>
+            <div class="flex-1 min-w-0">
+              <div class="kc-job-title">{{ job.title }}</div>
+              <div class="text-muted small">{{ job.employer.get_full_name|default:job.employer.username }}</div>
+            </div>
+            <span class="kc-badge kc-badge-primary text-nowrap">{{ job.get_job_type_display }}</span>
+          </div>
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            <span class="kc-badge kc-badge-gray"><i class="bi bi-geo-alt me-1"></i>{{ job.location }}</span>
+            <span class="kc-badge kc-badge-gray"><i class="bi bi-people me-1"></i>{{ job.openings }} opening{{ job.openings|pluralize }}</span>
+          </div>
+          <div class="d-flex align-items-center justify-content-between pt-3 border-top" style="border-color:var(--kc-border) !important;">
+            <span class="kc-salary">₹{{ job.salary_min|floatformat:0 }}–{{ job.salary_max|floatformat:0 }}/mo</span>
+            <span class="text-muted small">{{ job.created_at|timesince }} ago</span>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ═══ TOP WORKERS ══════════════════════════════════════ -->
+{% if top_workers %}
+<section class="kc-section" style="background:var(--kc-surface);">
+  <div class="container">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div>
+        <div class="kc-section-badge mb-2"><i class="bi bi-people"></i> Top Talent</div>
+        <h2 class="kc-section-title mb-0">Featured Workers</h2>
+      </div>
+      <a href="{% url 'workers:list' %}" class="btn btn-outline-primary fw-700 px-4 rounded-pill">Browse All</a>
+    </div>
+    <div class="row g-4">
+      {% for w in top_workers %}
+      <div class="col-md-6 col-lg-3 kc-reveal">
+        <div class="kc-worker-card text-center">
+          <div class="d-flex justify-content-center mb-3">
+            <div class="kc-avatar kc-avatar-lg" style="background:linear-gradient(135deg,var(--kc-primary),#6366f1);">
+              {% if w.profile_photo %}<img src="{{ w.profile_photo.url }}" alt="">{% else %}{{ w.first_name|first|upper|default:w.username|first|upper }}{% endif %}
+            </div>
+          </div>
+          <div class="fw-800 mb-1">{{ w.get_full_name|default:w.username }}</div>
+          <div class="text-primary fw-600 small mb-2">{{ w.worker_profile.get_skills_display }}</div>
+          <div class="d-flex justify-content-center gap-2 mb-3">
+            {% if w.worker_profile.availability %}<span class="kc-badge kc-badge-success">Available</span>{% endif %}
+            {% if w.worker_profile.aadhar_verified %}<span class="verified-badge">✓ Verified</span>{% endif %}
+          </div>
+          <div class="d-flex justify-content-around mb-3 py-2 border-top border-bottom" style="border-color:var(--kc-border)!important;font-size:.82rem;color:var(--kc-muted);">
+            <span>⭐ {{ w.worker_profile.rating }}</span>
+            <span>{{ w.worker_profile.experience_years }} yrs</span>
+            <span>{{ w.worker_profile.total_jobs }} jobs</span>
+          </div>
+          <div class="fw-800 text-success mb-3">₹{{ w.worker_profile.daily_rate }}/day</div>
+          <div class="d-flex gap-2">
+            <a href="{% url 'workers:detail' w.pk %}" class="btn btn-outline-primary btn-sm fw-700 flex-1 rounded-pill">View Profile</a>
+            {% if user.is_authenticated %}<a href="{% url 'chat:start' w.pk %}" class="btn btn-primary btn-sm fw-700 flex-1 rounded-pill">Hire</a>{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ═══ TESTIMONIALS ════════════════════════════════════ -->
+<section class="kc-section">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div class="kc-section-badge mb-3"><i class="bi bi-chat-quote"></i> Reviews</div>
+      <h2 class="kc-section-title mb-3">What People Say</h2>
+      <p class="text-muted">Trusted by thousands across Madhya Pradesh</p>
+    </div>
+    <div class="row g-4">
+      {% for t in testimonials %}
+      <div class="col-md-4 kc-reveal">
+        <div class="kc-testimonial">
+          <div class="text-warning mb-3">⭐⭐⭐⭐⭐</div>
+          <p class="text-muted lh-lg mb-4">"{{ t.quote }}"</p>
+          <div class="d-flex align-items-center gap-3">
+            <div class="kc-avatar-sm" style="background:{{ t.color }};">{{ t.name|first }}</div>
+            <div><div class="fw-700 small">{{ t.name }}</div><div class="text-muted" style="font-size:.75rem;">{{ t.role }} · {{ t.city }}</div></div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TEAM ════════════════════════════════════════════ -->
+<section class="kc-section" id="team" style="background:var(--kc-surface);">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div class="kc-section-badge mb-3"><i class="bi bi-person-workspace"></i> Meet the Team</div>
+      <h2 class="kc-section-title mb-3">The Minds Behind Kaamgar Connect</h2>
+      <p class="kc-section-subtitle">A dedicated team committed to connecting India's skilled workforce with opportunities.</p>
+    </div>
+    <div class="row g-4 justify-content-center">
+      {% for dev in developers %}
+      <div class="col-md-4 kc-reveal">
+        <div class="kc-card overflow-hidden kc-card-hover">
+          <div style="height:90px;background:linear-gradient(135deg,var(--kc-primary-soft),rgba(99,102,241,.1));"></div>
+          <div class="p-4 pt-0" style="margin-top:-44px;">
+            <div class="kc-avatar kc-avatar-xl mx-auto mb-3 border-4 border-white" style="background:linear-gradient(135deg,var(--kc-primary),#6366f1);">{{ dev.name|first }}</div>
+            <div class="text-center">
+              <div class="fw-800 fs-6 mb-1">{{ dev.name }}</div>
+              <div class="text-primary fw-600 small mb-2">{{ dev.role }}</div>
+              <p class="text-muted small lh-lg mb-3">{{ dev.bio }}</p>
+              <div class="d-flex flex-wrap gap-1 justify-content-center mb-3">
+                {% for skill in dev.skills %}<span class="kc-badge kc-badge-primary">{{ skill }}</span>{% endfor %}
+              </div>
+              <div class="d-flex gap-2 justify-content-center">
+                <a href="mailto:{{ dev.email }}" class="kc-social-btn"><i class="bi bi-envelope"></i></a>
+                <a href="#" class="kc-social-btn"><i class="bi bi-github"></i></a>
+                <a href="#" class="kc-social-btn"><i class="bi bi-linkedin"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONTACT ══════════════════════════════════════════ -->
+<section class="kc-section" id="contact">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div class="kc-section-badge mb-3"><i class="bi bi-envelope-heart"></i> Get in Touch</div>
+      <h2 class="kc-section-title mb-3">Contact Us</h2>
+      <p class="text-muted">Have questions? We'd love to hear from you.</p>
+    </div>
+    <div class="row g-5 justify-content-center">
+      <div class="col-lg-4">
+        <div class="d-flex flex-column gap-3">
+          {% for info in contact_info %}
+          <div class="d-flex align-items-start gap-3 p-3 kc-card">
+            <div class="kc-feature-icon" style="width:44px;height:44px;border-radius:12px;font-size:1.1rem;flex-shrink:0;">{{ info.icon }}</div>
+            <div><div class="fw-700 mb-1">{{ info.label }}</div><div class="text-muted small">{{ info.value }}</div></div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="kc-card p-4">
+          <form onsubmit="handleContact(event)">
+            <div class="row g-3">
+              <div class="col-sm-6"><label class="form-label">Your Name</label><input class="form-control" placeholder="Rahul Sharma" required></div>
+              <div class="col-sm-6"><label class="form-label">Email</label><input type="email" class="form-control" placeholder="your@email.com" required></div>
+              <div class="col-12"><label class="form-label">Subject</label><input class="form-control" placeholder="How can we help?" required></div>
+              <div class="col-12"><label class="form-label">Message</label><textarea class="form-control" rows="4" placeholder="Tell us more…" required></textarea></div>
+              <div class="col-12"><button type="submit" class="btn btn-primary fw-700 px-5 rounded-pill"><i class="bi bi-send me-2"></i>Send Message</button></div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ══════════════════════════════════════════════ -->
+<section class="kc-section">
+  <div class="container">
+    <div class="kc-cta text-center">
+      <h2 style="font-size:clamp(1.8rem,4vw,3rem);font-weight:900;margin-bottom:1rem;position:relative;z-index:1;">Ready to get started?</h2>
+      <p style="opacity:.85;font-size:1.05rem;max-width:500px;margin:0 auto 2rem;line-height:1.7;position:relative;z-index:1;">Join thousands of workers and employers already growing their careers on Kaamgar Connect.</p>
+      <div class="d-flex gap-3 justify-content-center flex-wrap" style="position:relative;z-index:1;">
+        <a href="{% url 'accounts:register' %}" class="btn btn-light fw-700 px-5 rounded-pill" style="color:var(--kc-primary);">Post a Job</a>
+        <a href="{% url 'accounts:register' %}" class="btn fw-700 px-5 rounded-pill" style="border:2px solid rgba(255,255,255,.5);color:white;background:transparent;">Find Work</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+function heroSearch(e) {
+  const search = document.getElementById('hero-search').value;
+  const cat = document.getElementById('hero-category').value;
+  if (search || cat) {
+    e.preventDefault();
+    window.location.href = '{% url "jobs:list" %}?search=' + encodeURIComponent(search) + '&category=' + encodeURIComponent(cat);
+  }
+}
+function handleContact(e) {
+  e.preventDefault();
+  Toast.success('Message sent! We\'ll reply within 24 hours. 📧');
+  e.target.reset();
+}
+</script>
+{% endblock %}

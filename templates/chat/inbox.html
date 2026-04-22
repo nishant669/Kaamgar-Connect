@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% block title %}Messages{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' %}{% endblock %}
+
+{% block extra_css %}
+<style>.kc-page { padding: 0 !important; }</style>
+{% endblock %}
+
+{% block content %}
+<div class="kc-chat-layout" id="chatLayout">
+
+  <!-- ── Contacts list sidebar ─────────────────────────── -->
+  <div class="kc-chat-sidebar" id="chatSidebar">
+    <div class="kc-chat-header">
+      <div class="flex-1">
+        <div class="fw-800" style="font-family:var(--font-display);font-size:1rem;">Messages</div>
+        <div class="small text-muted" style="font-size:.72rem;">
+          {% if user.role == 'worker' %}Your employers{% else %}Your workers{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Search bar -->
+    <div class="p-3" style="border-bottom:1px solid var(--border);">
+      <div class="kc-input-wrap">
+        <i class="bi bi-search kc-input-icon" style="font-size:.85rem;"></i>
+        <input type="text" class="form-control" placeholder="Search conversations…" id="chatSearch"
+               style="height:38px;padding-left:2.5rem;border-radius:var(--r-pill);font-size:.85rem;">
+      </div>
+    </div>
+
+    <div class="kc-chat-list">
+      {% for room in rooms %}
+        {% if user.role == 'worker' %}
+          {% with other=room.employer %}
+          {% with last_msg=room.messages.last %}
+          <a href="{% url 'chat:room' room.pk %}" class="kc-chat-item text-decoration-none"
+             data-name="{{ other.get_full_name|default:other.username|lower }}">
+            <div class="position-relative">
+              <div class="kc-avatar kc-avatar-sm flex-shrink-0">
+                {% if other.profile_photo %}<img src="{{ other.profile_photo.url }}" alt="">
+                {% else %}{{ other.first_name|first|upper|default:other.username|first|upper }}{% endif %}
+              </div>
+              <div class="chat-online-dot"></div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="chat-name text-truncate">{{ other.get_full_name|default:other.username }}</span>
+                {% if last_msg %}<span class="chat-time">{{ last_msg.timestamp|timesince|truncatechars:8 }}</span>{% endif %}
+              </div>
+              <div class="chat-preview">
+                {% if last_msg %}{{ last_msg.text|truncatechars:40 }}{% else %}<span class="text-primary fw-600" style="font-size:.72rem;">Start a conversation</span>{% endif %}
+              </div>
+            </div>
+          </a>
+          {% endwith %}
+          {% endwith %}
+        {% else %}
+          {% with other=room.worker %}
+          {% with last_msg=room.messages.last %}
+          <a href="{% url 'chat:room' room.pk %}" class="kc-chat-item text-decoration-none"
+             data-name="{{ other.get_full_name|default:other.username|lower }}">
+            <div class="position-relative">
+              <div class="kc-avatar kc-avatar-sm flex-shrink-0">
+                {% if other.profile_photo %}<img src="{{ other.profile_photo.url }}" alt="">
+                {% else %}{{ other.first_name|first|upper|default:other.username|first|upper }}{% endif %}
+              </div>
+              <div class="chat-online-dot"></div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="chat-name text-truncate">{{ other.get_full_name|default:other.username }}</span>
+                {% if last_msg %}<span class="chat-time">{{ last_msg.timestamp|timesince|truncatechars:8 }}</span>{% endif %}
+              </div>
+              <div class="chat-preview">
+                {% if last_msg %}{{ last_msg.text|truncatechars:40 }}{% else %}<span class="text-primary fw-600" style="font-size:.72rem;">Start a conversation</span>{% endif %}
+              </div>
+            </div>
+          </a>
+          {% endwith %}
+          {% endwith %}
+        {% endif %}
+      {% empty %}
+        <div class="d-flex flex-column align-items-center justify-content-center text-center text-muted p-4" style="padding-top:3rem!important;">
+          <i class="bi bi-chat-dots" style="font-size:2.5rem;opacity:.2;margin-bottom:1rem;"></i>
+          <div class="fw-600 small">No conversations yet</div>
+          <div class="small mt-1">
+            {% if user.role == 'employer' %}Browse <a href="{% url 'workers:list' %}">workers</a>!
+            {% else %}Apply to jobs and chat!{% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ── Empty / select-a-chat panel ──────────────────── -->
+  <div class="kc-chat-main d-flex align-items-center justify-content-center"
+       style="background: var(--bg); position: relative; overflow: hidden;">
+
+    <!-- Background pattern -->
+    <div style="position:absolute;inset:0;background-image:radial-gradient(var(--border) 1px,transparent 1px);background-size:28px 28px;opacity:.4;pointer-events:none;"></div>
+
+    <div class="text-center p-4" style="position:relative;z-index:1;">
+      <!-- Animated icon -->
+      <div class="kc-float" style="display:inline-flex;align-items:center;justify-content:center;width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--p-light));box-shadow:var(--shadow-primary);margin-bottom:1.5rem;">
+        <i class="bi bi-chat-heart-fill" style="font-size:2.25rem;color:#fff;"></i>
+      </div>
+      <h5 class="fw-800 mb-2" style="font-family:var(--font-display);font-size:1.25rem;">Select a Conversation</h5>
+      <p class="text-muted small mb-4" style="max-width:260px;margin:0 auto .5rem;">Choose a chat from the list to start messaging. Your conversations are private and secure.</p>
+      <div class="d-flex gap-2 justify-content-center flex-wrap">
+        {% if user.role == 'employer' %}
+          <a href="{% url 'workers:list' %}" class="btn btn-primary btn-pill btn-sm">
+            <i class="bi bi-people me-1"></i> Browse Workers
+          </a>
+        {% else %}
+          <a href="{% url 'jobs:list' %}" class="btn btn-primary btn-pill btn-sm">
+            <i class="bi bi-briefcase me-1"></i> Browse Jobs
+          </a>
+        {% endif %}
+        <a href="{% url 'dashboard:home' %}" class="btn btn-secondary btn-pill btn-sm">
+          <i class="bi bi-grid-1x2 me-1"></i> Dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+.chat-online-dot {
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--muted-light);
+  border: 2px solid var(--surface);
+}
+.chat-online-dot.active { background: var(--success); }
+
+/* Chat search */
+#chatSearch:focus { box-shadow: none; }
+</style>
+
+<script>
+const chatSearch = document.getElementById('chatSearch');
+if (chatSearch) {
+  chatSearch.addEventListener('input', () => {
+    const q = chatSearch.value.toLowerCase();
+    document.querySelectorAll('.kc-chat-item').forEach(item => {
+      item.style.display = (item.dataset.name || '').includes(q) ? '' : 'none';
+    });
+  });
+}
+</script>
+{% endblock %}

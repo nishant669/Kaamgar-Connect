@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}{% if editing %}Edit Job{% else %}Post a Job{% endif %}{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' %}{% endblock %}
+{% block content %}
+<div style="max-width:760px;">
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{% url 'dashboard:home' %}" class="btn btn-ghost btn-icon" style="border:1px solid var(--border);flex-shrink:0;">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+      <h1 class="kc-page-title">{% if editing %}Edit Job{% else %}Post a Job{% endif %}</h1>
+      <p class="kc-page-subtitle">{% if editing %}Update your job posting details.{% else %}Fill in the details to attract the best workers.{% endif %}</p>
+    </div>
+  </div>
+
+  <div class="kc-card p-4 p-lg-5">
+    <form method="post" action="{% if editing %}{% url 'jobs:edit' job.pk %}{% else %}{% url 'jobs:post' %}{% endif %}">
+      {% csrf_token %}
+
+      <!-- Section: Basic Info -->
+      <div class="mb-5">
+        <div class="d-flex align-items-center gap-2 mb-4 pb-2" style="border-bottom:2px solid var(--border);">
+          <div style="width:28px;height:28px;background:var(--p);border-radius:50%;color:white;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;">1</div>
+          <h6 class="fw-700 mb-0" style="font-family:var(--font-display);">Job Information</h6>
+        </div>
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <label class="form-label">Job Title (English) <span class="req">*</span></label>
+            <input type="text" name="title" class="form-control" placeholder="e.g. Senior Electrician" required value="{% if editing %}{{ job.title }}{% endif %}">
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label">Job Title (Hindi) <span class="text-muted" style="font-weight:400;text-transform:none;letter-spacing:0;">(Optional)</span></label>
+            <input type="text" name="title_hi" class="form-control" placeholder="e.g. वरिष्ठ इलेक्ट्रीशियन" value="{% if editing %}{{ job.title_hi }}{% endif %}">
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label">Category <span class="req">*</span></label>
+            <select name="category" class="form-select" required>
+              <option value="">Select category</option>
+              {% for val, label in categories %}
+              <option value="{{ val }}" {% if editing and job.category == val %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label">Job Type <span class="req">*</span></label>
+            <select name="job_type" class="form-select" required>
+              {% for val, label in job_types %}
+              <option value="{{ val }}" {% if editing and job.job_type == val %}selected{% elif not editing and val == 'full_time' %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label">Experience Required</label>
+            <select name="experience_req" class="form-select">
+              {% for val, label in exp_choices %}
+              <option value="{{ val }}" {% if editing and job.experience_req == val %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label">Skills Required</label>
+            <input type="text" name="skills_required" class="form-control" placeholder="e.g. Wiring, Safety, Repair (comma separated)" value="{% if editing %}{{ job.skills_required }}{% endif %}">
+            <p class="form-hint">Separate skills with commas. This helps match the right workers.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Location & Compensation -->
+      <div class="mb-5">
+        <div class="d-flex align-items-center gap-2 mb-4 pb-2" style="border-bottom:2px solid var(--border);">
+          <div style="width:28px;height:28px;background:var(--p);border-radius:50%;color:white;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;">2</div>
+          <h6 class="fw-700 mb-0" style="font-family:var(--font-display);">Location & Compensation</h6>
+        </div>
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label">Job Location <span class="req">*</span></label>
+            <div class="kc-input-wrap">
+              <i class="bi bi-geo-alt kc-input-icon"></i>
+              <input type="text" name="location" class="form-control" placeholder="e.g. Bhopal, Madhya Pradesh" required value="{% if editing %}{{ job.location }}{% endif %}">
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label">Min Salary (₹/month) <span class="req">*</span></label>
+            <div class="kc-input-wrap">
+              <i class="bi bi-currency-rupee kc-input-icon"></i>
+              <input type="number" name="salary_min" class="form-control" placeholder="15000" min="0" required value="{% if editing %}{{ job.salary_min|floatformat:0 }}{% endif %}">
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label">Max Salary (₹/month)</label>
+            <div class="kc-input-wrap">
+              <i class="bi bi-currency-rupee kc-input-icon"></i>
+              <input type="number" name="salary_max" class="form-control" placeholder="25000" min="0" value="{% if editing %}{{ job.salary_max|floatformat:0 }}{% endif %}">
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label">Number of Openings</label>
+            <input type="number" name="openings" class="form-control" value="{% if editing %}{{ job.openings }}{% else %}1{% endif %}" min="1" max="999">
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label">Application Deadline</label>
+            <input type="date" name="deadline" class="form-control" value="{% if editing and job.deadline %}{{ job.deadline|date:'Y-m-d' }}{% endif %}">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Description -->
+      <div class="mb-5">
+        <div class="d-flex align-items-center gap-2 mb-4 pb-2" style="border-bottom:2px solid var(--border);">
+          <div style="width:28px;height:28px;background:var(--p);border-radius:50%;color:white;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;">3</div>
+          <h6 class="fw-700 mb-0" style="font-family:var(--font-display);">Job Description</h6>
+        </div>
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label">Description (English) <span class="req">*</span></label>
+            <textarea name="description" class="form-control" rows="7" required data-maxchars="2000"
+              placeholder="Describe the job responsibilities, requirements, work environment, and any benefits…">{% if editing %}{{ job.description }}{% endif %}</textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label">Description (Hindi) <span class="text-muted" style="font-weight:400;text-transform:none;letter-spacing:0;">(Optional)</span></label>
+            <textarea name="description_hi" class="form-control" rows="4"
+              placeholder="नौकरी का विवरण हिंदी में लिखें…">{% if editing %}{{ job.description_hi }}{% endif %}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-3">
+        <button type="submit" class="btn btn-primary btn-lg btn-pill" style="flex:1;">
+          {% if editing %}<i class="bi bi-check-lg me-1"></i> Save Changes{% else %}<i class="bi bi-rocket-takeoff me-1"></i> Post Job Now{% endif %}
+        </button>
+        <a href="{% url 'jobs:my_jobs' %}" class="btn btn-secondary btn-lg btn-pill px-5">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

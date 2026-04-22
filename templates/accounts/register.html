@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% block title %}Create Account{% endblock %}
+{% block full_content %}
+<div class="kc-auth-bg" style="align-items:flex-start;padding-top:3rem;padding-bottom:3rem;">
+  <div class="kc-auth-card kc-fade-in" style="max-width:520px;">
+    <div class="kc-auth-icon">✨</div>
+    <h1 class="kc-auth-title">Create account</h1>
+    <p class="kc-auth-subtitle">Join 10,000+ workers and employers on Kaamgar Connect</p>
+
+    <form method="post" enctype="multipart/form-data" id="registerForm">
+      {% csrf_token %}
+      <input type="hidden" name="role" value="worker" id="roleInput">
+
+      <!-- Role selector -->
+      <div class="mb-4">
+        <label class="form-label">I am a</label>
+        <div class="kc-role-group">
+          <button type="button" class="kc-role-btn" data-role="employer" onclick="setRole('employer')">
+            <i class="bi bi-building-fill"></i> Job Provider
+          </button>
+          <button type="button" class="kc-role-btn active" data-role="worker" onclick="setRole('worker')">
+            <i class="bi bi-person-fill-gear"></i> Worker
+          </button>
+        </div>
+      </div>
+
+      <!-- Name + Username -->
+      <div class="row g-3 mb-3">
+        <div class="col-sm-6">
+          <label class="form-label">Full Name <span class="req">*</span></label>
+          <div class="kc-input-wrap">
+            <i class="bi bi-person kc-input-icon"></i>
+            <input type="text" name="full_name" class="form-control" placeholder="Rahul Sharma" required>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label">Username <span class="req">*</span></label>
+          <div class="kc-input-wrap">
+            <i class="bi bi-at kc-input-icon"></i>
+            <input type="text" name="username" class="form-control" placeholder="rahul_sharma" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Email Address <span class="req">*</span></label>
+        <div class="kc-input-wrap">
+          <i class="bi bi-envelope kc-input-icon"></i>
+          <input type="email" name="email" class="form-control" placeholder="your@email.com" required>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-sm-6">
+          <label class="form-label">Phone Number</label>
+          <div class="kc-input-wrap">
+            <i class="bi bi-telephone kc-input-icon"></i>
+            <input type="tel" name="phone" class="form-control" placeholder="+91 98765 43210">
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label">City</label>
+          <div class="kc-input-wrap">
+            <i class="bi bi-geo-alt kc-input-icon"></i>
+            <input type="text" name="city" class="form-control" placeholder="Bhopal / Indore">
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-sm-6">
+          <label class="form-label">Password <span class="req">*</span></label>
+          <div class="kc-input-wrap">
+            <i class="bi bi-lock kc-input-icon"></i>
+            <input type="password" name="password" id="pwInput" class="form-control" placeholder="Min 8 characters" required>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label">Confirm Password <span class="req">*</span></label>
+          <div class="kc-input-wrap">
+            <i class="bi bi-lock-fill kc-input-icon"></i>
+            <input type="password" name="password2" class="form-control" placeholder="Repeat password" required>
+          </div>
+        </div>
+      </div>
+
+      <!-- Password strength -->
+      <div class="mb-3">
+        <div class="kc-progress mb-1" style="height:5px;">
+          <div class="kc-progress-bar" id="pw-strength" style="width:0%;transition:width .4s,background .4s;"></div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="form-hint">Password strength</span>
+          <span class="form-hint fw-600" id="pw-label"></span>
+        </div>
+      </div>
+
+      <!-- Government ID upload -->
+      <div class="mb-4">
+        <label class="form-label">Government ID (Aadhaar/PAN) <span class="req">*</span></label>
+        <div class="kc-upload" data-max-mb="5">
+          <input type="file" name="govt_id" accept=".pdf,.jpg,.jpeg,.png" required>
+          <div class="upload-icon">📄</div>
+          <div class="upload-text fw-600">Upload Document</div>
+          <div class="upload-hint">PDF, JPG, PNG · Max 5MB</div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-pill w-100 py-3" style="font-size:.95rem;">
+        <i class="bi bi-person-plus me-1"></i> Create Account
+      </button>
+
+      <p class="text-center small text-muted mt-3 mb-0">
+        By registering, you agree to our <a href="#" style="color:var(--p);">Terms of Service</a> and <a href="#" style="color:var(--p);">Privacy Policy</a>.
+      </p>
+    </form>
+
+    <div class="d-flex align-items-center gap-2 my-4">
+      <div class="flex-1 kc-divider-h"></div>
+      <span class="small text-muted px-2">Already have an account?</span>
+      <div class="flex-1 kc-divider-h"></div>
+    </div>
+    <a href="{% url 'accounts:login' %}" class="btn btn-secondary btn-pill w-100 py-3">
+      <i class="bi bi-box-arrow-in-right me-1"></i> Sign In Instead
+    </a>
+  </div>
+</div>
+<script>
+function setRole(role) {
+  document.getElementById('roleInput').value = role;
+  document.querySelectorAll('.kc-role-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.kc-role-btn[data-role="${role}"]`).classList.add('active');
+}
+</script>
+{% endblock %}

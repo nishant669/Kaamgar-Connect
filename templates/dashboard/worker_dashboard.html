@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% block title %}Worker Dashboard{% endblock %}
+{% block sidebar %}{% include 'sidebar.html' %}{% endblock %}
+{% block content %}
+
+<!-- Header -->
+<div class="kc-page-header">
+  <div>
+    <div style="font-size:.78rem;font-weight:600;color:var(--p);letter-spacing:.07em;text-transform:uppercase;font-family:var(--font-display);margin-bottom:.3rem;">
+      <i class="bi bi-circle-fill" style="font-size:.5rem;animation:pulse-dot 2s infinite;"></i> Worker Dashboard
+    </div>
+    <h1 class="kc-page-title">Welcome back, {{ user.first_name|default:user.username }}! 👋</h1>
+    <p class="kc-page-subtitle">Here's your job search overview for today.</p>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    <a href="{% url 'accounts:profile' %}" class="btn btn-secondary"><i class="bi bi-pencil-square me-1"></i> Edit Profile</a>
+    <a href="{% url 'jobs:list' %}" class="btn btn-primary btn-pill"><i class="bi bi-search me-1"></i> Find Jobs</a>
+  </div>
+</div>
+
+<!-- Stat cards -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-xl-3">
+    <div class="kc-stat stat-blue kc-fade-in">
+      <div class="kc-stat-icon"><i class="bi bi-file-earmark-text-fill"></i></div>
+      <div>
+        <div class="kc-stat-label">Applications</div>
+        <div class="kc-stat-value" data-count="{{ stats.total_applications }}">{{ stats.total_applications }}</div>
+        <div class="kc-stat-trend trend-up">All time</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="kc-stat stat-green kc-fade-in delay-1">
+      <div class="kc-stat-icon"><i class="bi bi-check-circle-fill"></i></div>
+      <div>
+        <div class="kc-stat-label">Accepted</div>
+        <div class="kc-stat-value" data-count="{{ stats.accepted }}">{{ stats.accepted }}</div>
+        <div class="kc-stat-trend trend-up"><i class="bi bi-arrow-up-short"></i> Great job!</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="kc-stat stat-amber kc-fade-in delay-2">
+      <div class="kc-stat-icon"><i class="bi bi-hourglass-split"></i></div>
+      <div>
+        <div class="kc-stat-label">Pending</div>
+        <div class="kc-stat-value" data-count="{{ stats.pending }}">{{ stats.pending }}</div>
+        <div class="kc-stat-trend">Awaiting review</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="kc-stat stat-purple kc-fade-in delay-3">
+      <div class="kc-stat-icon"><i class="bi bi-briefcase-fill"></i></div>
+      <div>
+        <div class="kc-stat-label">Jobs Available</div>
+        <div class="kc-stat-value" data-count="{{ stats.available_jobs }}">{{ stats.available_jobs }}</div>
+        <div class="kc-stat-trend trend-up">Browse now →</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="row g-4">
+  <!-- Recent Applications -->
+  <div class="col-lg-6">
+    <div class="kc-card h-100">
+      <div class="d-flex align-items-center justify-content-between p-4 pb-0">
+        <div>
+          <h6 class="fw-700 mb-0" style="font-family:var(--font-display);">Recent Applications</h6>
+          <p class="text-muted small mb-0">{{ stats.total_applications }} total</p>
+        </div>
+        <a href="{% url 'applications:list' %}" class="btn btn-ghost btn-sm text-primary">View All <i class="bi bi-arrow-right"></i></a>
+      </div>
+      <div class="p-3">
+        {% if recent_applications %}
+          {% for app in recent_applications %}
+          <div class="d-flex align-items-center gap-3 p-3 rounded-3 mb-1" style="transition:var(--t);" onmouseenter="this.style.background='var(--surface2)'" onmouseleave="this.style.background='transparent'">
+            <div style="width:42px;height:42px;border-radius:12px;background:var(--p-soft);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">
+              {% if app.job.category == 'electrical' %}⚡{% elif app.job.category == 'plumbing' %}🔧{% elif app.job.category == 'construction' %}🏗️{% elif app.job.category == 'driving' %}🚗{% elif app.job.category == 'security' %}🛡️{% elif app.job.category == 'cooking' %}👨‍🍳{% else %}💼{% endif %}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="fw-600 small text-truncate">{{ app.job.title }}</div>
+              <div class="text-muted" style="font-size:.75rem;">{{ app.job.employer.get_full_name|default:app.job.employer.username }} · {{ app.applied_at|date:"M d" }}</div>
+            </div>
+            <span class="status-chip chip-{{ app.status }}">{{ app.get_status_display }}</span>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="kc-empty py-4">
+            <div class="empty-icon" style="font-size:2.5rem;">📭</div>
+            <div class="empty-title">No applications yet</div>
+            <div class="empty-desc small">Start applying to jobs to track them here.</div>
+            <a href="{% url 'jobs:list' %}" class="btn btn-primary btn-sm btn-pill mt-3">Browse Jobs</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Recommended Jobs -->
+  <div class="col-lg-6">
+    <div class="kc-card h-100">
+      <div class="d-flex align-items-center justify-content-between p-4 pb-0">
+        <div>
+          <h6 class="fw-700 mb-0" style="font-family:var(--font-display);">⚡ Recommended for You</h6>
+          <p class="text-muted small mb-0">Based on your skills</p>
+        </div>
+        <a href="{% url 'jobs:list' %}" class="btn btn-ghost btn-sm text-primary">See All <i class="bi bi-arrow-right"></i></a>
+      </div>
+      <div class="p-3">
+        {% if recommended_jobs %}
+          {% for job in recommended_jobs %}
+          <a href="{% url 'jobs:detail' job.pk %}" class="d-flex align-items-center gap-3 p-3 rounded-3 mb-1 text-decoration-none" style="transition:var(--t);color:inherit;" onmouseenter="this.style.background='var(--surface2)'" onmouseleave="this.style.background='transparent'">
+            <div style="width:42px;height:42px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">
+              {% if job.category == 'electrical' %}⚡{% elif job.category == 'plumbing' %}🔧{% elif job.category == 'construction' %}🏗️{% elif job.category == 'driving' %}🚗{% else %}💼{% endif %}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="fw-600 small text-truncate">{{ job.title }}</div>
+              <div class="text-muted" style="font-size:.75rem;">📍 {{ job.location }} · ₹{{ job.salary_min|floatformat:0 }}+/mo</div>
+            </div>
+            <span class="btn btn-outline-primary btn-sm btn-pill" style="font-size:.72rem;padding:.25rem .75rem;flex-shrink:0;">Apply</span>
+          </a>
+          {% endfor %}
+        {% else %}
+          <div class="kc-empty py-4">
+            <div class="empty-icon" style="font-size:2.5rem;">🔍</div>
+            <div class="empty-title">No matches yet</div>
+            <div class="empty-desc small">Update your skills in your profile to get better matches.</div>
+            <a href="{% url 'accounts:profile' %}" class="btn btn-secondary btn-sm btn-pill mt-3">Update Profile</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile completion -->
+  {% if worker_profile %}
+  <div class="col-12">
+    <div class="kc-card p-4">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div>
+          <h6 class="fw-700 mb-0" style="font-family:var(--font-display);">Profile Completion</h6>
+          <p class="text-muted small mb-0">Complete your profile to get more job offers</p>
+        </div>
+        <a href="{% url 'accounts:profile' %}" class="btn btn-primary btn-sm btn-pill">Complete Profile</a>
+      </div>
+      {% with f1=user.first_name f2=user.phone f3=user.bio f4=worker_profile.daily_rate f5=worker_profile.aadhar_verified %}
+      {% with total=5 %}
+      <div class="kc-progress mb-3">
+        <div class="kc-progress-bar" data-pct="{% if f1 %}20{% endif %}{% if f2 %}+20{% endif %}{% if f3 %}+20{% endif %}{% if f4 %}+20{% endif %}{% if f5 %}+20{% endif %}" style="width:0%;"></div>
+      </div>
+      {% endwith %}
+      <div class="row g-2">
+        {% for label, done in checklist %}
+        <div class="col-6 col-md-4 col-lg-auto">
+          <div class="d-flex align-items-center gap-2 px-3 py-2 rounded-3" style="background:{% if done %}rgba(5,150,105,.07);border:1px solid rgba(5,150,105,.18);{% else %}var(--surface2);border:1px solid var(--border);{% endif %}font-size:.82rem;font-weight:600;">
+            <i class="bi bi-{% if done %}check-circle-fill text-success{% else %}circle text-muted{% endif %}"></i>
+            {{ label }}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endwith %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

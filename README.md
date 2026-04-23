@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/render?type=soft&color=auto&height=200&section=header&text=Kaamgar%20Connect&fontSize=70&animation=fadeIn&fontAlignY=38" />
+<img src="https://capsule-render.vercel.app/render?type=soft&color=6366F1&height=200&section=header&text=Kaamgar%20Connect&fontSize=70&animation=fadeIn&fontAlignY=38" alt="Kaamgar Connect Banner" />
 
 ### **The Modern Proximity-Based Marketplace for Blue-Collar Talent**
 
@@ -21,17 +21,17 @@
 <div align="center">
   <table border="0">
     <tr>
-      <td>
-        <p align="center"><b>📍 3km Radius Logic</b></p>
-        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJqZ3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpxV3H6e1Uli/giphy.gif" width="300" />
+      <td align="center">
+        <b>📍 3km Radius Logic</b><br />
+        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJqZ3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpxV3H6e1Uli/giphy.gif" width="350px" alt="Radius Logic GIF" />
       </td>
-      <td>
-        <p align="center"><b>💬 Real-Time Chat</b></p>
-        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGJqZ3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/26tP4mE7DV1SshNde/giphy.gif" width="300" />
+      <td align="center">
+        <b>💬 Real-Time Chat</b><br />
+        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGJqZ3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5Z3R5JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/26tP4mE7DV1SshNde/giphy.gif" width="350px" alt="Real-time Chat GIF" />
       </td>
     </tr>
   </table>
-  <p><i>(Replace these with GIFs of your actual project dashboard to impress recruiters!)</i></p>
+  <p><i>(Pro-tip: Upload your own GIFs to an `/assets` folder in this repo for faster loading!)</i></p>
 </div>
 
 ---
@@ -81,10 +81,11 @@ Kaamgar Connect is built with a **Strict Dark Theme** (Midnight SaaS aesthetic).
 
 <details>
 <summary><b>🚀 See how the 3km logic works</b></summary>
+
 1. Employer tags job at Coordinate (X, Y).
 2. Worker lat/long is detected.
 3. Python backend calculates: `Distance = 2 * R * asin(sqrt(a))`.
-4. If distance < 3km, job is highlighted with a <b>Nearby Pulse</b>.
+4. If distance < 3km, job is highlighted with a **Nearby Pulse**.
 </details>
 
 ---
@@ -92,10 +93,22 @@ Kaamgar Connect is built with a **Strict Dark Theme** (Midnight SaaS aesthetic).
 ## ⚙️ Local Setup
 
 ```bash
+# Clone the repository
 git clone [https://github.com/nishant669/Kaamgar-Connect.git](https://github.com/nishant669/Kaamgar-Connect.git)
+
+# Navigate to project
 cd kaamgar_connect
+
+# Setup environment
 python -m venv venv
-.\venv\Scripts\activate  # Windows
+# Windows:
+.\venv\Scripts\activate
+# Mac/Linux:
+source venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
+
+# Run migrations and start server
 python manage.py migrate
 python manage.py runserver

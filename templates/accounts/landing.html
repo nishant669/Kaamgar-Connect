@@ -1,6 +1,18 @@
 {% extends 'base.html' %}
-{% block title %}Home{% endblock %}
+{% block title %}Home | Kaamgar Connect{% endblock %}
 {% block full_content %}
+
+<style>
+@keyframes float1 {0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+@keyframes float2 {0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+@keyframes float3 {0%,100%{transform:translateY(0);}50%{transform:translateY(-15px);}}
+
+.nav-pills .nav-link.active { background-color: var(--primary, #4f46e5) !important; color: white !important; }
+.nav-pills .nav-link { color: var(--text-primary) !important; font-weight: 600; }
+.nav-pills .nav-link:hover { background-color: rgba(79, 70, 229, 0.1); color: var(--primary, #4f46e5) !important; }
+.accordion-button:not(.collapsed) { color: var(--primary, #4f46e5) !important; background-color: rgba(79, 70, 229, 0.05) !important; }
+.accordion-button:focus { box-shadow: none !important; }
+</style>
 
 <!-- ═══ HERO ═══════════════════════════════════════════ -->
 <section class="kc-hero">
@@ -8,19 +20,19 @@
     <div class="row align-items-center g-5">
       <div class="col-lg-6 kc-fade-in">
         <div class="kc-hero-badge mb-3">
-          <i class="bi bi-lightning-charge-fill"></i> India's #1 Local Job Marketplace
+          <i class="bi bi-shield-check"></i> Aadhaar-Verified Local Workforce
         </div>
         <h1 class="kc-hero-title mb-4">
-          Connecting Local<br>Talent with <span class="accent">Local Needs.</span>
+          Reliable <span class="accent">Local Talent</span><br>at Your Fingertips.
         </h1>
         <p class="kc-hero-subtitle mb-5">
-          Find Aadhaar-verified workers in Bhopal, Indore & beyond — or get hired fast. Trusted by 10,000+ workers and employers.
+          Connecting verified daily-wage workers with employers across Bhopal, Indore, and Madhya Pradesh. Simple, fast, and secure local hiring.
         </p>
 
         <!-- Search bar -->
         <div class="kc-search-bar mb-5">
           <i class="bi bi-search ms-2 text-muted fs-5"></i>
-          <input type="text" placeholder="Search jobs, skills, or location…" id="hero-search">
+          <input type="text" placeholder="e.g. Electrician, Driver..." id="hero-search">
           <select id="hero-category">
             <option value="">All Categories</option>
             {% for val, label in categories %}
@@ -35,23 +47,23 @@
         <!-- Stats -->
         <div class="kc-stats-row">
           <div class="kc-hero-stat">
-            <div class="value" data-count="10000" data-suffix="+">10,000+</div>
-            <div class="label">Total Users</div>
+            <div class="value" data-count="10000" data-suffix="+">10k+</div>
+            <div class="label">Users</div>
           </div>
           <div class="kc-divider"></div>
           <div class="kc-hero-stat">
             <div class="value" data-count="500" data-suffix="+">500+</div>
-            <div class="label">Active Jobs</div>
+            <div class="label">Daily Jobs</div>
           </div>
           <div class="kc-divider"></div>
           <div class="kc-hero-stat">
-            <div class="value" data-count="25000" data-suffix="+">25,000+</div>
-            <div class="label">Jobs Completed</div>
+            <div class="value" data-count="25000" data-suffix="+">25k+</div>
+            <div class="label">Hired</div>
           </div>
           <div class="kc-divider"></div>
           <div class="kc-hero-stat">
             <div class="value">4.8★</div>
-            <div class="label">Avg. Rating</div>
+            <div class="label">Rating</div>
           </div>
         </div>
       </div>
@@ -60,21 +72,21 @@
           <!-- Floating cards decoration -->
           <div class="kc-card p-3 shadow-lg" style="position:absolute;top:0;right:0;width:200px;animation:float1 4s ease-in-out infinite;">
             <div class="d-flex align-items-center gap-2 mb-2">
-              <div class="kc-avatar-sm" style="background:linear-gradient(135deg,#0d6efd,#6366f1);">R</div>
-              <div><div class="fw-700 small">Rahul Sharma</div><div class="text-muted" style="font-size:.72rem;">Electrician ⭐4.9</div></div>
+              <div class="kc-avatar-sm" style="background:linear-gradient(135deg,#0d6efd,#6366f1);">S</div>
+              <div><div class="fw-700 small">Suresh Kumar</div><div class="text-success" style="font-size:.72rem;">✓ Aadhaar Verified</div></div>
             </div>
             <span class="badge bg-success-subtle text-success fw-700">✓ Available</span>
           </div>
           <div class="kc-card p-3 shadow-lg" style="position:absolute;bottom:60px;left:0;width:200px;animation:float2 5s ease-in-out infinite;">
             <div class="d-flex align-items-center gap-2 mb-2">
-              <i class="bi bi-briefcase-fill text-primary fs-4"></i>
-              <div><div class="fw-700 small">Plumber Needed</div><div class="text-muted" style="font-size:.72rem;">₹800/day · Bhopal</div></div>
+              <i class="bi bi-briefcase-fill text-warning fs-4"></i>
+              <div><div class="fw-700 small">Plumber Needed</div><div class="text-muted" style="font-size:.72rem;">Bhopal · ₹800/day</div></div>
             </div>
             <div class="text-success fw-700 small">12 Applicants</div>
           </div>
           <div class="kc-card p-3 shadow-lg" style="position:absolute;bottom:0;right:20px;width:190px;animation:float3 3.5s ease-in-out infinite;">
             <div class="text-success fw-700 mb-1"><i class="bi bi-check-circle-fill me-1"></i>Hired!</div>
-            <div class="small text-muted">Suresh Kumar accepted the job offer for Security Guard position.</div>
+            <div class="small text-muted">Suresh Kumar accepted the job offer.</div>
           </div>
           <!-- Central illustration -->
           <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:160px;height:160px;background:rgba(255,255,255,.12);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.2);">
@@ -86,23 +98,17 @@
   </div>
 </section>
 
-<style>
-@keyframes float1 {0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
-@keyframes float2 {0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
-@keyframes float3 {0%,100%{transform:translateY(0);}50%{transform:translateY(-15px);}}
-</style>
-
 <!-- ═══ CATEGORIES ══════════════════════════════════════ -->
-<section class="py-5" style="background:var(--kc-surface);">
+<section class="py-5" style="background:var(--bg-secondary);">
   <div class="container">
-    <div class="text-center mb-4">
-      <h2 class="kc-section-title mb-2">Browse by Category</h2>
-      <p class="text-muted">Find skilled workers or jobs in your field</p>
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <h2 class="kc-section-title mb-0" style="color:var(--text-primary);">Popular Categories</h2>
+      <a href="{% url 'jobs:list' %}" class="btn btn-link text-decoration-none fw-bold" style="color:var(--primary);">View All <i class="bi bi-arrow-right"></i></a>
     </div>
     <div class="row g-3">
-      {% for val, label in categories %}
+      {% for val, label in categories|slice:":12" %}
       <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-        <a href="{% url 'jobs:list' %}?category={{ val }}" class="kc-card kc-card-hover text-center p-3 d-block text-decoration-none" style="color:var(--kc-text);">
+        <a href="{% url 'jobs:list' %}?category={{ val }}" class="kc-card kc-card-hover text-center p-3 d-block text-decoration-none" style="background:var(--bg-primary);border:1px solid var(--border-primary);color:var(--text-primary);">
           <div class="fs-2 mb-2">{% if val == 'construction' %}🏗️{% elif val == 'electrical' %}⚡{% elif val == 'plumbing' %}🔧{% elif val == 'carpentry' %}🪚{% elif val == 'painting' %}🎨{% elif val == 'driving' %}🚗{% elif val == 'cooking' %}👨‍🍳{% elif val == 'cleaning' %}🧹{% elif val == 'security' %}🛡️{% elif val == 'welding' %}⚒️{% else %}💼{% endif %}</div>
           <div class="fw-700 small">{{ label }}</div>
         </a>
@@ -112,78 +118,99 @@
   </div>
 </section>
 
-<!-- ═══ FEATURES ════════════════════════════════════════ -->
-<section class="kc-section" id="about">
+<!-- ═══ HOW IT WORKS ════════════════════════════════════ -->
+<section class="kc-section" id="how-it-works" style="background:var(--bg-primary);">
   <div class="container">
     <div class="text-center mb-5">
-      <div class="kc-section-badge mb-3"><i class="bi bi-stars"></i> Why Choose Us</div>
-      <h2 class="kc-section-title mb-3">Built for India's Workforce</h2>
-      <p class="kc-section-subtitle">A seamless experience for both workers and employers — quality and trust in every interaction.</p>
+      <div class="kc-section-badge mb-3" style="background:rgba(79,70,229,.15);color:var(--primary);"><i class="bi bi-diagram-3"></i> Simple Process</div>
+      <h2 class="kc-section-title mb-3" style="color:var(--text-primary);">How Kaamgar Connect Works</h2>
     </div>
-    <div class="row g-4">
-      {% for f in features %}
-      <div class="col-md-6 col-lg-4 kc-reveal">
-        <div class="kc-feature-card">
-          <div class="kc-feature-icon">{{ f.icon }}</div>
-          <h5 class="fw-800 mb-2">{{ f.title }}</h5>
-          <p class="text-muted mb-0 lh-lg">{{ f.desc }}</p>
+
+    <ul class="nav nav-pills justify-content-center mb-5 gap-3" id="pills-tab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active rounded-pill px-4" id="pills-employer-tab" data-bs-toggle="pill" data-bs-target="#pills-employer" type="button" role="tab">For Employers</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link rounded-pill px-4" id="pills-worker-tab" data-bs-toggle="pill" data-bs-target="#pills-worker" type="button" role="tab">For Workers</button>
+      </li>
+    </ul>
+
+    <div class="tab-content" id="pills-tabContent">
+      <div class="tab-pane fade show active" id="pills-employer" role="tabpanel">
+        <div class="row g-4 position-relative">
+          <div class="col-md-4 text-center kc-reveal position-relative">
+            <div class="kc-step-line d-none d-md-block" style="border-color:var(--border-primary);"></div>
+            <div class="kc-step-number mb-3" style="background:rgba(79,70,229,.1);color:var(--primary);">1</div>
+            <h5 class="fw-800 mb-2" style="color:var(--text-primary);">Post a Requirement</h5>
+            <p class="text-muted lh-lg">Describe the job, location, and daily wage you're offering. It takes less than 2 minutes.</p>
+          </div>
+          <div class="col-md-4 text-center kc-reveal position-relative">
+            <div class="kc-step-line d-none d-md-block" style="border-color:var(--border-primary);"></div>
+            <div class="kc-step-number mb-3" style="background:var(--primary);color:white;">2</div>
+            <h5 class="fw-800 mb-2" style="color:var(--text-primary);">Review Applicants</h5>
+            <p class="text-muted lh-lg">Browse through profiles of Aadhaar-verified workers. Filter by experience and proximity.</p>
+          </div>
+          <div class="col-md-4 text-center kc-reveal position-relative">
+            <div class="kc-step-number mb-3" style="background:rgba(79,70,229,.1);color:var(--primary);">3</div>
+            <h5 class="fw-800 mb-2" style="color:var(--text-primary);">Hire & Pay Directly</h5>
+            <p class="text-muted lh-lg">Contact the worker directly through our chat system and pay them after the job is done.</p>
+          </div>
         </div>
       </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-
-<!-- ═══ HOW IT WORKS ════════════════════════════════════ -->
-<section class="kc-section" style="background:var(--kc-surface);">
-  <div class="container">
-    <div class="text-center mb-5">
-      <div class="kc-section-badge mb-3"><i class="bi bi-diagram-3"></i> Simple Process</div>
-      <h2 class="kc-section-title mb-3">How It Works</h2>
-      <p class="text-muted">Get started in 3 easy steps</p>
-    </div>
-    <div class="row g-4 position-relative">
-      {% for step in steps %}
-      <div class="col-md-4 text-center kc-reveal position-relative">
-        {% if not forloop.last %}<div class="kc-step-line d-none d-md-block"></div>{% endif %}
-        <div class="kc-step-number mb-3" style="background:{% if forloop.counter == 2 %}var(--kc-primary);color:white;{% else %}var(--kc-primary-soft);color:var(--kc-primary);{% endif %}">{{ forloop.counter }}</div>
-        <h5 class="fw-800 mb-2">{{ step.title }}</h5>
-        <p class="text-muted lh-lg">{{ step.desc }}</p>
+      <div class="tab-pane fade" id="pills-worker" role="tabpanel">
+        <div class="row g-4 position-relative">
+          <div class="col-md-4 text-center kc-reveal position-relative">
+            <div class="kc-step-line d-none d-md-block" style="border-color:var(--border-primary);"></div>
+            <div class="kc-step-number mb-3" style="background:rgba(79,70,229,.1);color:var(--primary);">1</div>
+            <h5 class="fw-800 mb-2" style="color:var(--text-primary);">Register & Verify</h5>
+            <p class="text-muted lh-lg">Create your profile with your skills and complete your Aadhaar verification to build trust.</p>
+          </div>
+          <div class="col-md-4 text-center kc-reveal position-relative">
+            <div class="kc-step-line d-none d-md-block" style="border-color:var(--border-primary);"></div>
+            <div class="kc-step-number mb-3" style="background:var(--primary);color:white;">2</div>
+            <h5 class="fw-800 mb-2" style="color:var(--text-primary);">Browse Local Jobs</h5>
+            <p class="text-muted lh-lg">Search for jobs in your city that match your skills. Apply with a single click.</p>
+          </div>
+          <div class="col-md-4 text-center kc-reveal position-relative">
+            <div class="kc-step-number mb-3" style="background:rgba(79,70,229,.1);color:var(--primary);">3</div>
+            <h5 class="fw-800 mb-2" style="color:var(--text-primary);">Start Earning</h5>
+            <p class="text-muted lh-lg">Get hired, complete the work, and receive payments directly from the employer.</p>
+          </div>
+        </div>
       </div>
-      {% endfor %}
     </div>
   </div>
 </section>
 
 <!-- ═══ FEATURED JOBS ════════════════════════════════════ -->
 {% if featured_jobs %}
-<section class="kc-section">
+<section class="kc-section" style="background:var(--bg-secondary);">
   <div class="container">
     <div class="d-flex align-items-center justify-content-between mb-4">
       <div>
-        <div class="kc-section-badge mb-2"><i class="bi bi-briefcase"></i> Latest Jobs</div>
-        <h2 class="kc-section-title mb-0">Featured Job Listings</h2>
+        <div class="kc-section-badge mb-2" style="background:rgba(79,70,229,.15);color:var(--primary);"><i class="bi bi-briefcase"></i> Latest Jobs</div>
+        <h2 class="kc-section-title mb-0" style="color:var(--text-primary);">Featured Job Listings</h2>
       </div>
       <a href="{% url 'jobs:list' %}" class="btn btn-outline-primary fw-700 px-4 rounded-pill">View All Jobs</a>
     </div>
     <div class="row g-4">
       {% for job in featured_jobs %}
       <div class="col-md-6 col-lg-4 kc-reveal">
-        <a href="{% url 'jobs:detail' job.pk %}" class="kc-job-card">
+        <a href="{% url 'jobs:detail' job.pk %}" class="kc-job-card" style="background:var(--bg-primary);border:1px solid var(--border-primary);">
           <div class="d-flex align-items-start gap-3 mb-3">
             <div class="kc-job-icon">{% if job.category == 'electrical' %}⚡{% elif job.category == 'plumbing' %}🔧{% elif job.category == 'construction' %}🏗️{% elif job.category == 'driving' %}🚗{% elif job.category == 'security' %}🛡️{% else %}💼{% endif %}</div>
             <div class="flex-1 min-w-0">
-              <div class="kc-job-title">{{ job.title }}</div>
+              <div class="kc-job-title" style="color:var(--text-primary);">{{ job.title }}</div>
               <div class="text-muted small">{{ job.employer.get_full_name|default:job.employer.username }}</div>
             </div>
             <span class="kc-badge kc-badge-primary text-nowrap">{{ job.get_job_type_display }}</span>
           </div>
           <div class="d-flex flex-wrap gap-2 mb-3">
-            <span class="kc-badge kc-badge-gray"><i class="bi bi-geo-alt me-1"></i>{{ job.location }}</span>
-            <span class="kc-badge kc-badge-gray"><i class="bi bi-people me-1"></i>{{ job.openings }} opening{{ job.openings|pluralize }}</span>
+            <span class="kc-badge kc-badge-gray" style="background:var(--bg-secondary);color:var(--text-secondary);"><i class="bi bi-geo-alt me-1"></i>{{ job.location }}</span>
+            <span class="kc-badge kc-badge-gray" style="background:var(--bg-secondary);color:var(--text-secondary);"><i class="bi bi-people me-1"></i>{{ job.openings }} opening{{ job.openings|pluralize }}</span>
           </div>
-          <div class="d-flex align-items-center justify-content-between pt-3 border-top" style="border-color:var(--kc-border) !important;">
-            <span class="kc-salary">₹{{ job.salary_min|floatformat:0 }}–{{ job.salary_max|floatformat:0 }}/mo</span>
+          <div class="d-flex align-items-center justify-content-between pt-3 border-top" style="border-color:var(--border-primary) !important;">
+            <span class="kc-salary" style="color:var(--primary);">₹{{ job.salary_min|floatformat:0 }}–{{ job.salary_max|floatformat:0 }}/mo</span>
             <span class="text-muted small">{{ job.created_at|timesince }} ago</span>
           </div>
         </a>
@@ -196,31 +223,31 @@
 
 <!-- ═══ TOP WORKERS ══════════════════════════════════════ -->
 {% if top_workers %}
-<section class="kc-section" style="background:var(--kc-surface);">
+<section class="kc-section" style="background:var(--bg-primary);">
   <div class="container">
     <div class="d-flex align-items-center justify-content-between mb-4">
       <div>
-        <div class="kc-section-badge mb-2"><i class="bi bi-people"></i> Top Talent</div>
-        <h2 class="kc-section-title mb-0">Featured Workers</h2>
+        <div class="kc-section-badge mb-2" style="background:rgba(79,70,229,.15);color:var(--primary);"><i class="bi bi-people"></i> Top Talent</div>
+        <h2 class="kc-section-title mb-0" style="color:var(--text-primary);">Featured Workers</h2>
       </div>
       <a href="{% url 'workers:list' %}" class="btn btn-outline-primary fw-700 px-4 rounded-pill">Browse All</a>
     </div>
     <div class="row g-4">
       {% for w in top_workers %}
       <div class="col-md-6 col-lg-3 kc-reveal">
-        <div class="kc-worker-card text-center">
+        <div class="kc-worker-card text-center" style="background:var(--bg-secondary);border:1px solid var(--border-primary);">
           <div class="d-flex justify-content-center mb-3">
-            <div class="kc-avatar kc-avatar-lg" style="background:linear-gradient(135deg,var(--kc-primary),#6366f1);">
+            <div class="kc-avatar kc-avatar-lg" style="background:linear-gradient(135deg,var(--primary),#6366f1);">
               {% if w.profile_photo %}<img src="{{ w.profile_photo.url }}" alt="">{% else %}{{ w.first_name|first|upper|default:w.username|first|upper }}{% endif %}
             </div>
           </div>
-          <div class="fw-800 mb-1">{{ w.get_full_name|default:w.username }}</div>
+          <div class="fw-800 mb-1" style="color:var(--text-primary);">{{ w.get_full_name|default:w.username }}</div>
           <div class="text-primary fw-600 small mb-2">{{ w.worker_profile.get_skills_display }}</div>
           <div class="d-flex justify-content-center gap-2 mb-3">
             {% if w.worker_profile.availability %}<span class="kc-badge kc-badge-success">Available</span>{% endif %}
             {% if w.worker_profile.aadhar_verified %}<span class="verified-badge">✓ Verified</span>{% endif %}
           </div>
-          <div class="d-flex justify-content-around mb-3 py-2 border-top border-bottom" style="border-color:var(--kc-border)!important;font-size:.82rem;color:var(--kc-muted);">
+          <div class="d-flex justify-content-around mb-3 py-2 border-top border-bottom" style="border-color:var(--border-primary)!important;font-size:.82rem;color:var(--text-secondary);">
             <span>⭐ {{ w.worker_profile.rating }}</span>
             <span>{{ w.worker_profile.experience_years }} yrs</span>
             <span>{{ w.worker_profile.total_jobs }} jobs</span>
@@ -238,99 +265,326 @@
 </section>
 {% endif %}
 
-<!-- ═══ TESTIMONIALS ════════════════════════════════════ -->
-<section class="kc-section">
+<!-- ═══ REVIEWS ═══════════════════════════════════════════ -->
+<section class="kc-section" style="background:var(--bg-secondary);">
   <div class="container">
     <div class="text-center mb-5">
-      <div class="kc-section-badge mb-3"><i class="bi bi-chat-quote"></i> Reviews</div>
-      <h2 class="kc-section-title mb-3">What People Say</h2>
-      <p class="text-muted">Trusted by thousands across Madhya Pradesh</p>
+      <div class="kc-section-badge mb-3" style="background:rgba(79,70,229,.15);color:var(--primary);"><i class="bi bi-star-fill"></i> Reviews</div>
+      <h2 class="kc-section-title mb-3" style="color:var(--text-primary);">What People Say</h2>
+      <p style="color:var(--text-secondary);">Trusted by thousands across Madhya Pradesh</p>
     </div>
     <div class="row g-4">
-      {% for t in testimonials %}
-      <div class="col-md-4 kc-reveal">
-        <div class="kc-testimonial">
-          <div class="text-warning mb-3">⭐⭐⭐⭐⭐</div>
-          <p class="text-muted lh-lg mb-4">"{{ t.quote }}"</p>
+
+      <!-- Review 1 -->
+      <div class="col-md-6 col-lg-4 kc-reveal">
+        <div style="background:var(--bg-primary);border:1px solid var(--border-primary);padding:2rem;border-radius:16px;height:100%;transition:all .3s;" onmouseover="this.style.borderColor='var(--primary)';this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(79,70,229,.15)';" onmouseout="this.style.borderColor='var(--border-primary)';this.style.transform='none';this.style.boxShadow='none';">
+          <div class="text-warning mb-3" style="font-size:1rem;">★★★★★</div>
+          <p style="color:var(--text-secondary);line-height:1.75;margin-bottom:1.5rem;font-style:italic;">"Kaamgar Connect ne mujhe 3 din mein electrician milwa diya. Verification process bilkul aasan tha aur worker bahut professional nikla!"</p>
           <div class="d-flex align-items-center gap-3">
-            <div class="kc-avatar-sm" style="background:{{ t.color }};">{{ t.name|first }}</div>
-            <div><div class="fw-700 small">{{ t.name }}</div><div class="text-muted" style="font-size:.75rem;">{{ t.role }} · {{ t.city }}</div></div>
+            <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#6366f1);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;flex-shrink:0;">R</div>
+            <div><div class="fw-700 small" style="color:var(--text-primary);">Ramesh Verma</div><div style="font-size:.75rem;color:var(--text-tertiary);">Employer · Bhopal</div></div>
           </div>
         </div>
       </div>
-      {% endfor %}
+
+      <!-- Review 2 -->
+      <div class="col-md-6 col-lg-4 kc-reveal">
+        <div style="background:var(--bg-primary);border:1px solid var(--border-primary);padding:2rem;border-radius:16px;height:100%;transition:all .3s;" onmouseover="this.style.borderColor='var(--primary)';this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(79,70,229,.15)';" onmouseout="this.style.borderColor='var(--border-primary)';this.style.transform='none';this.style.boxShadow='none';">
+          <div class="text-warning mb-3" style="font-size:1rem;">★★★★★</div>
+          <p style="color:var(--text-secondary);line-height:1.75;margin-bottom:1.5rem;font-style:italic;">"Main ek daily-wage worker hoon. Pehle kaam dhundna bahut mushkil tha, ab Kaamgar Connect se rozaana naye kaam milte hain. Life badal gayi!"</p>
+          <div class="d-flex align-items-center gap-3">
+            <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;flex-shrink:0;">S</div>
+            <div><div class="fw-700 small" style="color:var(--text-primary);">Suresh Patel</div><div style="font-size:.75rem;color:var(--text-tertiary);">Plumber · Indore</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Review 3 -->
+      <div class="col-md-6 col-lg-4 kc-reveal">
+        <div style="background:var(--bg-primary);border:1px solid var(--border-primary);padding:2rem;border-radius:16px;height:100%;transition:all .3s;" onmouseover="this.style.borderColor='var(--primary)';this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(79,70,229,.15)';" onmouseout="this.style.borderColor='var(--border-primary)';this.style.transform='none';this.style.boxShadow='none';">
+          <div class="text-warning mb-3" style="font-size:1rem;">★★★★★</div>
+          <p style="color:var(--text-secondary);line-height:1.75;margin-bottom:1.5rem;font-style:italic;">"We hired 5 construction workers in a single day through this platform. The Aadhaar verification gave us complete peace of mind. Highly recommended!"</p>
+          <div class="d-flex align-items-center gap-3">
+            <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;flex-shrink:0;">A</div>
+            <div><div class="fw-700 small" style="color:var(--text-primary);">Anita Sharma</div><div style="font-size:.75rem;color:var(--text-tertiary);">Contractor · Gwalior</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Review 4 -->
+      <div class="col-md-6 col-lg-4 kc-reveal">
+        <div style="background:var(--bg-primary);border:1px solid var(--border-primary);padding:2rem;border-radius:16px;height:100%;transition:all .3s;" onmouseover="this.style.borderColor='var(--primary)';this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(79,70,229,.15)';" onmouseout="this.style.borderColor='var(--border-primary)';this.style.transform='none';this.style.boxShadow='none';">
+          <div class="text-warning mb-3" style="font-size:1rem;">★★★★☆</div>
+          <p style="color:var(--text-secondary);line-height:1.75;margin-bottom:1.5rem;font-style:italic;">"Bahut hi simple aur fast process hai. Maine apna profile banaya aur 2 ghante mein hi interview call aa gaya. Superb platform!"</p>
+          <div class="d-flex align-items-center gap-3">
+            <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#ef4444,#dc2626);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;flex-shrink:0;">M</div>
+            <div><div class="fw-700 small" style="color:var(--text-primary);">Mohan Yadav</div><div style="font-size:.75rem;color:var(--text-tertiary);">Driver · Jabalpur</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Review 5 -->
+      <div class="col-md-6 col-lg-4 kc-reveal">
+        <div style="background:var(--bg-primary);border:1px solid var(--border-primary);padding:2rem;border-radius:16px;height:100%;transition:all .3s;" onmouseover="this.style.borderColor='var(--primary)';this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(79,70,229,.15)';" onmouseout="this.style.borderColor='var(--border-primary)';this.style.transform='none';this.style.boxShadow='none';">
+          <div class="text-warning mb-3" style="font-size:1rem;">★★★★★</div>
+          <p style="color:var(--text-secondary);line-height:1.75;margin-bottom:1.5rem;font-style:italic;">"As a small business owner, finding reliable helpers used to be a nightmare. Kaamgar Connect is a game-changer for local businesses like mine."</p>
+          <div class="d-flex align-items-center gap-3">
+            <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;flex-shrink:0;">P</div>
+            <div><div class="fw-700 small" style="color:var(--text-primary);">Priya Joshi</div><div style="font-size:.75rem;color:var(--text-tertiary);">Shop Owner · Indore</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Review 6 -->
+      <div class="col-md-6 col-lg-4 kc-reveal">
+        <div style="background:var(--bg-primary);border:1px solid var(--border-primary);padding:2rem;border-radius:16px;height:100%;transition:all .3s;" onmouseover="this.style.borderColor='var(--primary)';this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(79,70,229,.15)';" onmouseout="this.style.borderColor='var(--border-primary)';this.style.transform='none';this.style.boxShadow='none';">
+          <div class="text-warning mb-3" style="font-size:1rem;">★★★★★</div>
+          <p style="color:var(--text-secondary);line-height:1.75;margin-bottom:1.5rem;font-style:italic;">"Mujhe ek experienced welder chahiye tha ek din ke liye. Kaamgar Connect se filtered search karke 30 minute mein sahi candidate mil gaya!"</p>
+          <div class="d-flex align-items-center gap-3">
+            <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#0284c7);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;flex-shrink:0;">K</div>
+            <div><div class="fw-700 small" style="color:var(--text-primary);">Kamal Kishore</div><div style="font-size:.75rem;color:var(--text-tertiary);">Factory Owner · Bhopal</div></div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
 
 <!-- ═══ TEAM ════════════════════════════════════════════ -->
-<section class="kc-section" id="team" style="background:var(--kc-surface);">
+<section class="kc-section" id="team" style="background:var(--bg-primary);">
   <div class="container">
     <div class="text-center mb-5">
-      <div class="kc-section-badge mb-3"><i class="bi bi-person-workspace"></i> Meet the Team</div>
-      <h2 class="kc-section-title mb-3">The Minds Behind Kaamgar Connect</h2>
-      <p class="kc-section-subtitle">A dedicated team committed to connecting India's skilled workforce with opportunities.</p>
+      <div class="kc-section-badge mb-3" style="background:rgba(79,70,229,.15);color:var(--primary);"><i class="bi bi-person-workspace"></i> Founding Team</div>
+      <h2 class="kc-section-title mb-3" style="color:var(--text-primary);">The <span style="color:var(--primary);">Byte Brain</span> Leadership</h2>
+      <p style="color:var(--text-secondary);">Technical and strategic management behind the platform.</p>
     </div>
     <div class="row g-4 justify-content-center">
-      {% for dev in developers %}
-      <div class="col-md-4 kc-reveal">
-        <div class="kc-card overflow-hidden kc-card-hover">
-          <div style="height:90px;background:linear-gradient(135deg,var(--kc-primary-soft),rgba(99,102,241,.1));"></div>
-          <div class="p-4 pt-0" style="margin-top:-44px;">
-            <div class="kc-avatar kc-avatar-xl mx-auto mb-3 border-4 border-white" style="background:linear-gradient(135deg,var(--kc-primary),#6366f1);">{{ dev.name|first }}</div>
-            <div class="text-center">
-              <div class="fw-800 fs-6 mb-1">{{ dev.name }}</div>
-              <div class="text-primary fw-600 small mb-2">{{ dev.role }}</div>
-              <p class="text-muted small lh-lg mb-3">{{ dev.bio }}</p>
-              <div class="d-flex flex-wrap gap-1 justify-content-center mb-3">
-                {% for skill in dev.skills %}<span class="kc-badge kc-badge-primary">{{ skill }}</span>{% endfor %}
+      <!-- Member 1 -->
+      <div class="col-md-6 col-lg-4 kc-reveal">
+        <div class="kc-card overflow-hidden kc-card-hover h-100" style="background:var(--bg-secondary);border:1px solid var(--border-primary);">
+          <div style="height:80px;background:linear-gradient(135deg,rgba(79,70,229,.1),rgba(99,102,241,.05));"></div>
+          <div class="p-4 text-center pt-0" style="margin-top:-40px;">
+            <div style="width:100px;height:100px;margin:0 auto -30px;display:flex;align-items:center;justify-content:center;border-radius:50%;overflow:hidden;border:4px solid var(--bg-secondary);" class="mb-3">
+              <img src="https://ui-avatars.com/api/?name=Nishant+Chourasiya&background=1e293b&color=fff" alt="Nishant" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <div class="fw-800 fs-6 mb-1 mt-2" style="color:var(--text-primary);">Nishant Chourasiya</div>
+            <div class="text-primary fw-600 small mb-2">CEO & Team Lead</div>
+            <p class="text-muted small mb-3">Manages overall business operations, regional partnerships, and growth strategy.</p>
+            <div class="d-flex gap-2 justify-content-center">
+              <a href="#" class="kc-social-btn" style="width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(79,70,229,.1);color:var(--primary);transition:all .3s;"><i class="fab fa-linkedin" style="font-size:.9rem;"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Member 2 -->
+      <div class="col-md-6 col-lg-4 kc-reveal">
+        <div class="kc-card overflow-hidden kc-card-hover h-100" style="background:var(--bg-secondary);border:1px solid var(--border-primary);">
+          <div style="height:80px;background:linear-gradient(135deg,rgba(79,70,229,.1),rgba(99,102,241,.05));"></div>
+          <div class="p-4 text-center pt-0" style="margin-top:-40px;">
+            <div style="width:100px;height:100px;margin:0 auto -30px;display:flex;align-items:center;justify-content:center;border-radius:50%;overflow:hidden;border:4px solid var(--bg-secondary);" class="mb-3">
+              <img src="https://ui-avatars.com/api/?name=Prince+Gupta&background=4f46e5&color=fff" alt="Prince" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <div class="fw-800 fs-6 mb-1 mt-2" style="color:var(--text-primary);">Prince Gupta</div>
+            <div class="text-primary fw-600 small mb-2">Technical Architect</div>
+            <p class="text-muted small mb-3">Oversees full-stack development, system scalability, and security protocols.</p>
+            <div class="d-flex gap-2 justify-content-center">
+              <a href="#" class="kc-social-btn" style="width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(79,70,229,.1);color:var(--primary);transition:all .3s;"><i class="fab fa-linkedin" style="font-size:.9rem;"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Member 3 -->
+      <div class="col-md-6 col-lg-4 kc-reveal">
+        <div class="kc-card overflow-hidden kc-card-hover h-100" style="background:var(--bg-secondary);border:1px solid var(--border-primary);">
+          <div style="height:80px;background:linear-gradient(135deg,rgba(79,70,229,.1),rgba(99,102,241,.05));"></div>
+          <div class="p-4 text-center pt-0" style="margin-top:-40px;">
+            <div style="width:100px;height:100px;margin:0 auto -30px;display:flex;align-items:center;justify-content:center;border-radius:50%;overflow:hidden;border:4px solid var(--bg-secondary);" class="mb-3">
+              <img src="https://ui-avatars.com/api/?name=Pratmesh+Wani&background=f59e0b&color=fff" alt="Pratmesh" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <div class="fw-800 fs-6 mb-1 mt-2" style="color:var(--text-primary);">Pratmesh Wani</div>
+            <div class="text-primary fw-600 small mb-2">Chief Product Officer (CPO)</div>
+            <p class="text-muted small mb-3">Responsible for product roadmap, feature prioritization, and user experience design.</p>
+            <div class="d-flex gap-2 justify-content-center">
+              <a href="#" class="kc-social-btn" style="width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(79,70,229,.1);color:var(--primary);transition:all .3s;"><i class="fab fa-linkedin" style="font-size:.9rem;"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Member 4 -->
+      <div class="col-md-6 col-lg-4 kc-reveal">
+        <div class="kc-card overflow-hidden kc-card-hover h-100" style="background:var(--bg-secondary);border:1px solid var(--border-primary);">
+          <div style="height:80px;background:linear-gradient(135deg,rgba(79,70,229,.1),rgba(99,102,241,.05));"></div>
+          <div class="p-4 text-center pt-0" style="margin-top:-40px;">
+            <div style="width:100px;height:100px;margin:0 auto -30px;display:flex;align-items:center;justify-content:center;border-radius:50%;overflow:hidden;border:4px solid var(--bg-secondary);" class="mb-3">
+              <img src="https://ui-avatars.com/api/?name=Prateek+Sahu&background=334155&color=fff" alt="Prateek" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <div class="fw-800 fs-6 mb-1 mt-2" style="color:var(--text-primary);">Prateek Sahu</div>
+            <div class="text-primary fw-600 small mb-2">Chief Financial Officer (CFO)</div>
+            <p class="text-muted small mb-3">Handles financial planning, budget management, and fiscal risk assessment.</p>
+            <div class="d-flex gap-2 justify-content-center">
+              <a href="#" class="kc-social-btn" style="width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(79,70,229,.1);color:var(--primary);transition:all .3s;"><i class="fab fa-linkedin" style="font-size:.9rem;"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Member 5 -->
+      <div class="col-md-6 col-lg-4 kc-reveal">
+        <div class="kc-card overflow-hidden kc-card-hover h-100" style="background:var(--bg-secondary);border:1px solid var(--border-primary);">
+          <div style="height:80px;background:linear-gradient(135deg,rgba(79,70,229,.1),rgba(99,102,241,.05));"></div>
+          <div class="p-4 text-center pt-0" style="margin-top:-40px;">
+            <div style="width:100px;height:100px;margin:0 auto -30px;display:flex;align-items:center;justify-content:center;border-radius:50%;overflow:hidden;border:4px solid var(--bg-secondary);" class="mb-3">
+              <img src="https://ui-avatars.com/api/?name=Deepak+Adlak&background=10b981&color=fff" alt="Deepak" style="width:100%;height:100%;object-fit:cover;">
+            </div>
+            <div class="fw-800 fs-6 mb-1 mt-2" style="color:var(--text-primary);">Deepak Adlak</div>
+            <div class="text-primary fw-600 small mb-2">Marketing & Growth Lead</div>
+            <p class="text-muted small mb-3">Directs regional marketing campaigns and user acquisition strategies.</p>
+            <div class="d-flex gap-2 justify-content-center">
+              <a href="#" class="kc-social-btn" style="width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(79,70,229,.1);color:var(--primary);transition:all .3s;"><i class="fab fa-linkedin" style="font-size:.9rem;"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FAQ ═════════════════════════════════════════════ -->
+<section class="kc-section" id="faq" style="background:var(--bg-secondary);">
+  <div class="container">
+    <div class="text-center mb-5">
+      <div class="kc-section-badge mb-3" style="background:rgba(79,70,229,.15);color:var(--primary);"><i class="bi bi-question-circle"></i> FAQ</div>
+      <h2 class="kc-section-title mb-3" style="color:var(--text-primary);">Common Questions</h2>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="accordion kc-accordion" id="accordionFAQ">
+          <div class="accordion-item" style="border:1px solid var(--border-primary);border-radius:12px;margin-bottom:1rem;overflow:hidden;background:var(--bg-primary);">
+            <h2 class="accordion-header">
+              <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq1" style="background:var(--bg-primary);color:var(--text-primary);box-shadow:none;">
+                How is Aadhaar verification done?
+              </button>
+            </h2>
+            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#accordionFAQ">
+              <div class="accordion-body text-muted" style="border-top:1px solid var(--border-primary);">
+                Workers submit their Aadhaar details through our secure portal. We verify the identity using government-authorized APIs to ensure that the profile belongs to a legitimate individual.
               </div>
-              <div class="d-flex gap-2 justify-content-center">
-                <a href="mailto:{{ dev.email }}" class="kc-social-btn"><i class="bi bi-envelope"></i></a>
-                <a href="#" class="kc-social-btn"><i class="bi bi-github"></i></a>
-                <a href="#" class="kc-social-btn"><i class="bi bi-linkedin"></i></a>
+            </div>
+          </div>
+          <div class="accordion-item" style="border:1px solid var(--border-primary);border-radius:12px;margin-bottom:1rem;overflow:hidden;background:var(--bg-primary);">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq2" style="background:var(--bg-primary);color:var(--text-primary);box-shadow:none;">
+                Is there any registration fee?
+              </button>
+            </h2>
+            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+              <div class="accordion-body text-muted" style="border-top:1px solid var(--border-primary);">
+                No, registering on Kaamgar Connect is completely free for both workers and employers. You only pay for the services you hire.
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item" style="border:1px solid var(--border-primary);border-radius:12px;margin-bottom:1rem;overflow:hidden;background:var(--bg-primary);">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#faq3" style="background:var(--bg-primary);color:var(--text-primary);box-shadow:none;">
+                How do I contact a worker?
+              </button>
+            </h2>
+            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#accordionFAQ">
+              <div class="accordion-body text-muted" style="border-top:1px solid var(--border-primary);">
+                Once you find a suitable profile, you can use our built-in chat system or get their verified contact number to communicate directly.
               </div>
             </div>
           </div>
         </div>
       </div>
-      {% endfor %}
     </div>
   </div>
 </section>
 
 <!-- ═══ CONTACT ══════════════════════════════════════════ -->
-<section class="kc-section" id="contact">
+<section class="kc-section" id="contact" style="background:var(--bg-primary);">
   <div class="container">
     <div class="text-center mb-5">
-      <div class="kc-section-badge mb-3"><i class="bi bi-envelope-heart"></i> Get in Touch</div>
-      <h2 class="kc-section-title mb-3">Contact Us</h2>
-      <p class="text-muted">Have questions? We'd love to hear from you.</p>
+      <div class="kc-section-badge mb-3" style="background:rgba(79,70,229,.15);color:var(--primary);"><i class="bi bi-envelope-heart"></i> Get in Touch</div>
+      <h2 class="kc-section-title mb-3" style="color:var(--text-primary);">Have Questions? <span style="color:var(--primary);">We're Here to Help.</span></h2>
+      <p style="color:var(--text-secondary);">Our team is always ready to assist you — reach out anytime.</p>
     </div>
-    <div class="row g-5 justify-content-center">
+    <div class="row g-5 align-items-start justify-content-center">
+
+      <!-- Contact Info -->
       <div class="col-lg-4">
         <div class="d-flex flex-column gap-3">
-          {% for info in contact_info %}
-          <div class="d-flex align-items-start gap-3 p-3 kc-card">
-            <div class="kc-feature-icon" style="width:44px;height:44px;border-radius:12px;font-size:1.1rem;flex-shrink:0;">{{ info.icon }}</div>
-            <div><div class="fw-700 mb-1">{{ info.label }}</div><div class="text-muted small">{{ info.value }}</div></div>
+
+          <div class="d-flex align-items-start gap-3 p-4" style="background:var(--bg-secondary);border:1px solid var(--border-primary);border-radius:14px;transition:.3s;" onmouseover="this.style.borderColor='var(--primary)';" onmouseout="this.style.borderColor='var(--border-primary)';">
+            <div style="width:48px;height:48px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--primary);background:rgba(79,70,229,.12);font-size:1.3rem;"><i class="bi bi-envelope-fill"></i></div>
+            <div>
+              <div class="fw-700 mb-1" style="color:var(--text-primary);">Email Us</div>
+              <div style="color:var(--text-tertiary);font-size:.88rem;">support@kaamgarconnect.com</div>
+              <div style="color:var(--text-tertiary);font-size:.88rem;">hello@kaamgarconnect.com</div>
+            </div>
           </div>
-          {% endfor %}
+
+          <div class="d-flex align-items-start gap-3 p-4" style="background:var(--bg-secondary);border:1px solid var(--border-primary);border-radius:14px;transition:.3s;" onmouseover="this.style.borderColor='var(--primary)';" onmouseout="this.style.borderColor='var(--border-primary)';">
+            <div style="width:48px;height:48px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--primary);background:rgba(79,70,229,.12);font-size:1.3rem;"><i class="bi bi-telephone-fill"></i></div>
+            <div>
+              <div class="fw-700 mb-1" style="color:var(--text-primary);">Call Us</div>
+              <div style="color:var(--text-tertiary);font-size:.88rem;">+91 98765 43210</div>
+              <div style="color:var(--text-tertiary);font-size:.78rem;">Mon–Sat, 9 AM – 6 PM</div>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-start gap-3 p-4" style="background:var(--bg-secondary);border:1px solid var(--border-primary);border-radius:14px;transition:.3s;" onmouseover="this.style.borderColor='var(--primary)';" onmouseout="this.style.borderColor='var(--border-primary)';">
+            <div style="width:48px;height:48px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--primary);background:rgba(79,70,229,.12);font-size:1.3rem;"><i class="bi bi-geo-alt-fill"></i></div>
+            <div>
+              <div class="fw-700 mb-1" style="color:var(--text-primary);">Office</div>
+              <div style="color:var(--text-tertiary);font-size:.88rem;">Bhopal, Madhya Pradesh</div>
+              <div style="color:var(--text-tertiary);font-size:.78rem;">India – 462001</div>
+            </div>
+          </div>
+
         </div>
       </div>
+
+      <!-- Contact Form -->
       <div class="col-lg-6">
-        <div class="kc-card p-4">
-          <form onsubmit="handleContact(event)">
+        <div style="background:var(--bg-secondary);border:1px solid var(--border-primary);padding:2.2rem;border-radius:16px;">
+          <h5 class="fw-800 mb-4" style="color:var(--text-primary);">Send Us a Message</h5>
+          <form id="contactForm" onsubmit="handleContact(event)">
             <div class="row g-3">
-              <div class="col-sm-6"><label class="form-label">Your Name</label><input class="form-control" placeholder="Rahul Sharma" required></div>
-              <div class="col-sm-6"><label class="form-label">Email</label><input type="email" class="form-control" placeholder="your@email.com" required></div>
-              <div class="col-12"><label class="form-label">Subject</label><input class="form-control" placeholder="How can we help?" required></div>
-              <div class="col-12"><label class="form-label">Message</label><textarea class="form-control" rows="4" placeholder="Tell us more…" required></textarea></div>
-              <div class="col-12"><button type="submit" class="btn btn-primary fw-700 px-5 rounded-pill"><i class="bi bi-send me-2"></i>Send Message</button></div>
+              <div class="col-sm-6">
+                <label class="form-label fw-600" style="color:var(--text-primary);font-size:.88rem;">Your Name</label>
+                <input id="cName" type="text" class="form-control" placeholder="e.g. Ramesh Verma" style="background:var(--bg-primary);border:1px solid var(--border-primary);color:var(--text-primary);padding:.75rem 1rem;border-radius:10px;" required>
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label fw-600" style="color:var(--text-primary);font-size:.88rem;">Phone Number</label>
+                <input id="cPhone" type="tel" class="form-control" placeholder="+91 XXXXX XXXXX" style="background:var(--bg-primary);border:1px solid var(--border-primary);color:var(--text-primary);padding:.75rem 1rem;border-radius:10px;">
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-600" style="color:var(--text-primary);font-size:.88rem;">Your Email</label>
+                <input id="cEmail" type="email" class="form-control" placeholder="you@example.com" style="background:var(--bg-primary);border:1px solid var(--border-primary);color:var(--text-primary);padding:.75rem 1rem;border-radius:10px;" required>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-600" style="color:var(--text-primary);font-size:.88rem;">Subject</label>
+                <select id="cSubject" class="form-control" style="background:var(--bg-primary);border:1px solid var(--border-primary);color:var(--text-primary);padding:.75rem 1rem;border-radius:10px;">
+                  <option>General Enquiry</option>
+                  <option>Worker Support</option>
+                  <option>Employer Support</option>
+                  <option>Report an Issue</option>
+                  <option>Partnership</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-600" style="color:var(--text-primary);font-size:.88rem;">Message</label>
+                <textarea id="cMsg" class="form-control" rows="4" placeholder="How can we help you?" style="background:var(--bg-primary);border:1px solid var(--border-primary);color:var(--text-primary);padding:.75rem 1rem;border-radius:10px;resize:none;" required></textarea>
+              </div>
+              <div class="col-12">
+                <button type="submit" class="btn btn-primary fw-700 px-5 rounded-pill w-100" style="padding:.8rem;"><i class="bi bi-send me-2"></i>Send Message</button>
+              </div>
             </div>
           </form>
         </div>
       </div>
+
     </div>
   </div>
 </section>
@@ -342,7 +596,7 @@
       <h2 style="font-size:clamp(1.8rem,4vw,3rem);font-weight:900;margin-bottom:1rem;position:relative;z-index:1;">Ready to get started?</h2>
       <p style="opacity:.85;font-size:1.05rem;max-width:500px;margin:0 auto 2rem;line-height:1.7;position:relative;z-index:1;">Join thousands of workers and employers already growing their careers on Kaamgar Connect.</p>
       <div class="d-flex gap-3 justify-content-center flex-wrap" style="position:relative;z-index:1;">
-        <a href="{% url 'accounts:register' %}" class="btn btn-light fw-700 px-5 rounded-pill" style="color:var(--kc-primary);">Post a Job</a>
+        <a href="{% url 'accounts:register' %}" class="btn btn-light fw-700 px-5 rounded-pill" style="color:var(--primary, #4f46e5);">Post a Job</a>
         <a href="{% url 'accounts:register' %}" class="btn fw-700 px-5 rounded-pill" style="border:2px solid rgba(255,255,255,.5);color:white;background:transparent;">Find Work</a>
       </div>
     </div>
@@ -360,7 +614,11 @@ function heroSearch(e) {
 }
 function handleContact(e) {
   e.preventDefault();
-  Toast.success('Message sent! We\'ll reply within 24 hours. 📧');
+  if (typeof Toast !== 'undefined' && Toast.success) {
+    Toast.success('Message sent! We\'ll reply within 24 hours. 📧');
+  } else {
+    alert('Message sent! We\'ll reply within 24 hours. 📧');
+  }
   e.target.reset();
 }
 </script>

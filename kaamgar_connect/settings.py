@@ -191,9 +191,9 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = 'nishantchourasiya006@gmail.com'
+EMAIL_HOST_USER = ''
 
-EMAIL_HOST_PASSWORD = 'nodx wzmi eqti ksxu'
+EMAIL_HOST_PASSWORD = ''
 
 DEFAULT_FROM_EMAIL = f'Kaamgar Connect <{EMAIL_HOST_USER}>'
 
